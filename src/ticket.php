@@ -1,0 +1,99 @@
+<?php
+class Ticket{
+    
+    
+    public $title = '';
+
+    public $body = '';
+
+    public $requester = null;
+
+    public $team = null;
+
+    public $team_member = null;
+
+    public $status = '';
+
+    public $priority = '';
+
+    public $rating = '';
+
+    private $db = null;
+
+
+    public function __construct($data = null) {
+        $this->title = $data['title'];
+        $this->body = $data['body'];
+        $this->requester = $data['requester'];
+        $this->team = $data['team'];
+        $this->team_member = isset($data['team_member']) ? $data['team_member'] : NULL;
+        $this->status = isset($data['status']) ? $data['status'] : 'open';
+        $this->priority = isset($data['priority']) ? $data['priority'] : 'low';
+
+        $this->db = Database::getInstance();
+
+        return $this;
+    }
+
+    public function save(){
+        $sql = "INSERT INTO ticket (title, body, requester, team, team_member, status, priority)
+                VALUES ('$this->title', '$this->body', '$this->requester', '$this->team', '$this->team_member', '$this->status', '$this->priority');
+        ";
+        
+        if($this->db->query($sql) === false) {
+            throw new Exception($this->db->error);
+        }
+        $id = $this->db->insert_id;
+        return self::find($id);
+    }
+
+    public static function find($id){
+        $sql ="SELECT * FROM ticket WHERE id = '$id'";
+        $self = new static;
+        $res = $self->db->query($sql);
+        if($res->num_rows < 1) return false;
+        $self->populateObject($res->fetch_object());
+        return $self;
+    }
+
+    public static function findAll(){
+        $sql = "SELECT * FROM ticket ORDER BY id DESC";
+        $tickets = [];
+        $self = new static;
+        $res = $self->db->query($sql);
+        
+        if($res->num_rows < 1) return new static;
+
+        while($row = $res->fetch_object()){
+            $ticket = new static;
+            $ticket->populateObject($row);
+            $tickets[] = $ticket;
+        }
+
+        return $tickets;
+    }
+
+    public function displayStatusBadge(){
+        $badgeType = ''; 
+        if($this->status == 'open'){
+            $badgeType = 'danger';
+        } else if($this->status == 'pending'){
+            $badgeType = 'warning';
+        } else if($this->status == 'solved'){
+            $badgeType = 'success';
+        } else if($this->status == 'closed'){
+            $badgeType = 'info';
+        }
+
+        return '<div class="badge badge-' .$badgeType . '" role="badge"> '. ucfirst($this->status) .'</div>';
+    }
+
+    public function populateObject($object){
+
+        foreach($object as $key => $property){
+            $this->$key = $property;
+        }
+    }
+
+
+}
