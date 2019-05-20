@@ -1,33 +1,42 @@
 <?php
-class Team{
+class Event{
     
-    public $id = null;
     
-    public $name = '';
+    public $id = '';
+
+    public $ticket = '';
+
+    public $user = '';
+
+    public $body = '';
+
+    private $db = null;
 
 
     public function __construct($data = null) {
-        $this->name = $data['name'];
-        
+        $this->ticket = $data['ticket'];
+        $this->user = $data['user'];
+        $this->body = $data['body'];
+
         $this->db = Database::getInstance();
 
         return $this;
     }
 
     public function save(){
-        $sql = "INSERT INTO team (name)
-                VALUES ('$this->name');
+        $sql = "INSERT INTO ticket_event (ticket, user,  body)
+                VALUES ('$this->ticket', '$this->user', '$this->body');
         ";
+        
         if($this->db->query($sql) === false) {
             throw new Exception($this->db->error);
         }
         $id = $this->db->insert_id;
         return self::find($id);
-
     }
 
     public static function find($id){
-        $sql ="SELECT * FROM team WHERE id = '$id'";
+        $sql ="SELECT * FROM ticket_event WHERE ticket = '$id'";
         $self = new static;
         $res = $self->db->query($sql);
         if($res->num_rows < 1) return false;
@@ -36,7 +45,7 @@ class Team{
     }
 
     public static function findAll(){
-        $sql = "SELECT * FROM team ORDER BY id DESC";
+        $sql = "SELECT * FROM ticket_event ORDER BY id DESC";
         $tickets = [];
         $self = new static;
         $res = $self->db->query($sql);
@@ -50,7 +59,24 @@ class Team{
         }
 
         return $tickets;
-    } 
+    }
+
+    public static function findByTicket($id){
+        $sql = "SELECT * FROM ticket_event WHERE ticket = '$id'";
+        $tickets = [];
+        $self = new static;
+        $res = $self->db->query($sql);
+        
+        if($res->num_rows < 1) return new static;
+
+        while($row = $res->fetch_object()){
+            $ticket = new static;
+            $ticket->populateObject($row);
+            $tickets[] = $ticket;
+        }
+
+        return $tickets;
+    }
 
     public function populateObject($object){
 
@@ -60,6 +86,4 @@ class Team{
     }
 
 
-
-    
 }

@@ -10,7 +10,7 @@ const getTeamMember = function (teamId){
             const options = [];
 
             for(let i = 0; i< result.length; i++){
-                let option = `<option value="${result[i].id}">${result[i].user}</option>`;
+                let option = `<option value="${result[i].id}">${result[i].name}</option>`;
                 options.push(option);
             }
 

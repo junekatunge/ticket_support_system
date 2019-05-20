@@ -20,7 +20,7 @@ if(isset($_POST['submit'])){
   } else if(strlen($password) < 1){
     $err = "Please enter your password";
   } else {
-    $sql = "SELECT name, email, password, role FROM users WHERE email = '$email'";
+    $sql = "SELECT id, name, email, password, role FROM users WHERE email = '$email'";
     $res = $db->query($sql);
 
     if($res->num_rows < 1){

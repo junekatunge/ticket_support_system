@@ -72,6 +72,12 @@ class TeamMember{
         return $tickets;
     } 
 
+    public static function getName($id){
+        $sql = "SELECT name FROM users WHERE id = '$id'";
+        $self = new static;
+        $res = $self->db->query($sql);
+        return $res->fetch_object()->name;
+    }
 
     public function populateObject($object){
 

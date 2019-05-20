@@ -2,6 +2,7 @@
   include './header.php';
   require_once './src/requester.php';
   require_once './src/ticket.php';
+  require_once './src/ticket-event.php';
 
   $err = '';
   $msg = '';
@@ -54,7 +55,15 @@
                 'priority' => $priority
             ]); 
       
-            $ticket->save();
+            $savedTicket = $ticket->save();
+
+            $event = new Event([
+                'ticket' => $savedTicket->id, 
+                'user' => $user->id, 
+                'body' => 'Ticket created'
+            ]);
+            $event->save();
+
             $msg = "Ticket generated successfully";
         } catch(Exception $e){
             $err = "Failed to generate ticket";
