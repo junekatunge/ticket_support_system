@@ -8,7 +8,8 @@ class TeamMember{
     public $team = '';
 
 
-    public function __construct($data = null) {
+    public function __construct($data = null) 
+    {
         $this->user = $data['name'];
         $this->team = $data['team-id'];
         
@@ -17,7 +18,8 @@ class TeamMember{
         return $this;
     }
 
-    public function save(){
+    public function save() : TeamMember
+    {
         $sql = "INSERT INTO team_member (user, team)
                 VALUES ('$this->name', '$this->teamId');
         ";
@@ -29,7 +31,8 @@ class TeamMember{
 
     }
 
-    public static function find($id){
+    public static function find($id) : TeamMember
+    {
         $sql ="SELECT * FROM team_member WHERE id = '$id'";
         $self = new static;
         $res = $self->db->query($sql);
@@ -38,48 +41,52 @@ class TeamMember{
         return $self;
     }
 
-    public static function findByTeam($id){
+    public static function findByTeam($id) : array
+    {
         $sql = "SELECT * FROM team_member WHERE id = '$id' ORDER BY id DESC";
-        $tickets = [];
+        $members = [];
         $self = new static;
         $res = $self->db->query($sql);
         
         if($res->num_rows < 1) return new static;
 
         while($row = $res->fetch_object()){
-            $ticket = new static;
-            $ticket->populateObject($row);
-            $tickets[] = $ticket;
+            $member = new static;
+            $member->populateObject($row);
+            $members[] = $member;
         }
 
-        return $tickets;
+        return $members;
     }
 
-    public static function findAll(){
+    public static function findAll() : array
+    {
         $sql = "SELECT * FROM team_member ORDER BY id DESC";
-        $tickets = [];
+        $members = [];
         $self = new static;
         $res = $self->db->query($sql);
         
         if($res->num_rows < 1) return new static;
 
         while($row = $res->fetch_object()){
-            $ticket = new static;
-            $ticket->populateObject($row);
-            $tickets[] = $ticket;
+            $member = new static;
+            $member->populateObject($row);
+            $members[] = $member;
         }
 
-        return $tickets;
+        return $members;
     } 
 
-    public static function getName($id){
+    public static function getName($id) : string 
+    {
         $sql = "SELECT name FROM users WHERE id = '$id'";
         $self = new static;
         $res = $self->db->query($sql);
         return $res->fetch_object()->name;
     }
 
-    public function populateObject($object){
+    public function populateObject($object) : void 
+    {
 
         foreach($object as $key => $property){
             $this->$key = $property;

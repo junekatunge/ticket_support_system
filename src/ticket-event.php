@@ -13,7 +13,8 @@ class Event{
     private $db = null;
 
 
-    public function __construct($data = null) {
+    public function __construct($data = null) 
+    {
         $this->ticket = $data['ticket'];
         $this->user = $data['user'];
         $this->body = $data['body'];
@@ -23,7 +24,8 @@ class Event{
         return $this;
     }
 
-    public function save(){
+    public function save() : Event 
+    {
         $sql = "INSERT INTO ticket_event (ticket, user,  body)
                 VALUES ('$this->ticket', '$this->user', '$this->body');
         ";
@@ -35,7 +37,8 @@ class Event{
         return self::find($id);
     }
 
-    public static function find($id){
+    public static function find($id) : Event
+    {
         $sql ="SELECT * FROM ticket_event WHERE ticket = '$id'";
         $self = new static;
         $res = $self->db->query($sql);
@@ -44,7 +47,8 @@ class Event{
         return $self;
     }
 
-    public static function findAll(){
+    public static function findAll() : array 
+    {
         $sql = "SELECT * FROM ticket_event ORDER BY id DESC";
         $tickets = [];
         $self = new static;
@@ -61,24 +65,25 @@ class Event{
         return $tickets;
     }
 
-    public static function findByTicket($id){
+    public static function findByTicket($id) : array 
+    {
         $sql = "SELECT * FROM ticket_event WHERE ticket = '$id'";
-        $tickets = [];
+        $events = [];
         $self = new static;
         $res = $self->db->query($sql);
         
         if($res->num_rows < 1) return new static;
 
         while($row = $res->fetch_object()){
-            $ticket = new static;
-            $ticket->populateObject($row);
-            $tickets[] = $ticket;
+            $event = new static;
+            $event->populateObject($row);
+            $events[] = $event;
         }
 
-        return $tickets;
+        return $events;
     }
 
-    public function populateObject($object){
+    public function populateObject($object) : void{
 
         foreach($object as $key => $property){
             $this->$key = $property;

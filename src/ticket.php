@@ -21,7 +21,8 @@ class Ticket{
     private $db = null;
 
 
-    public function __construct($data = null) {
+    public function __construct($data = null) 
+    {
         $this->title = $data['title'];
         $this->body = $data['body'];
         $this->requester = $data['requester'];
@@ -35,7 +36,8 @@ class Ticket{
         return $this;
     }
 
-    public function save(){
+    public function save() : Ticket
+    {
         $sql = "INSERT INTO ticket (title, body, requester, team, team_member, status, priority)
                 VALUES ('$this->title', '$this->body', '$this->requester', '$this->team', '$this->team_member', '$this->status', '$this->priority');
         ";
@@ -47,7 +49,8 @@ class Ticket{
         return self::find($id);
     }
 
-    public static function find($id){
+    public static function find($id) : Ticket
+    {
         $sql ="SELECT * FROM ticket WHERE id = '$id'";
         $self = new static;
         $res = $self->db->query($sql);
@@ -56,7 +59,8 @@ class Ticket{
         return $self;
     }
 
-    public static function findAll(){
+    public static function findAll() : array
+    {
         $sql = "SELECT * FROM ticket ORDER BY id DESC";
         $tickets = [];
         $self = new static;
@@ -73,7 +77,50 @@ class Ticket{
         return $tickets;
     }
 
-    public function displayStatusBadge(){
+    public static function findByStatus($status) : array
+    {
+        $sql = "SELECT * FROM ticket WHERE status = '$status' ORDER BY id DESC";
+        $self = new static;
+        $tickets = [];
+        $res = $self->db->query($sql);
+        
+        while($row = $res->fetch_object()){
+            $ticket[] = $row;
+        }
+
+        return $ticket;
+    }
+
+    public static function changeStatus($id, $status) : bool
+    {
+        $self = new static;
+        $sql = "UPDATE ticket SET status = '$status' WHERE id = '$id'";
+        return $self->db->query($sql);
+    }
+
+    public static function delete($id) : bool
+    {
+        $sql = "DELETE FROM ticket WHERE id = '$id";
+        $self = new static;
+        return $self->db->query($sql);
+    }
+
+    public static function setRating($id, $rating) : bool
+    {
+        $sql = "UPDATE ticket SET rating = '$rating' WHERE id = '$id'";
+        $self = new static;
+        return $self->db->query($sql);
+    } 
+
+    public static function setPriority($id, $priority) : bool
+    {
+        $sql = "UPDATE ticket SET priority = '$priority' WHERE id = '$id'";
+        $self = new static;
+        return $self->db->query($sql);
+    } 
+
+    public function displayStatusBadge() : string
+    {
         $badgeType = ''; 
         if($this->status == 'open'){
             $badgeType = 'danger';
@@ -88,7 +135,8 @@ class Ticket{
         return '<div class="badge badge-' .$badgeType . '" role="badge"> '. ucfirst($this->status) .'</div>';
     }
 
-    public function populateObject($object){
+    public function populateObject($object) : void
+    {
 
         foreach($object as $key => $property){
             $this->$key = $property;

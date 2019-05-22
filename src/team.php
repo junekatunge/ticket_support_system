@@ -6,7 +6,8 @@ class Team{
     public $name = '';
 
 
-    public function __construct($data = null) {
+    public function __construct($data = null) 
+    {
         $this->name = $data['name'];
         
         $this->db = Database::getInstance();
@@ -14,7 +15,8 @@ class Team{
         return $this;
     }
 
-    public function save(){
+    public function save() : Team
+    {
         $sql = "INSERT INTO team (name)
                 VALUES ('$this->name');
         ";
@@ -26,7 +28,8 @@ class Team{
 
     }
 
-    public static function find($id){
+    public static function find($id) : Team
+    {
         $sql ="SELECT * FROM team WHERE id = '$id'";
         $self = new static;
         $res = $self->db->query($sql);
@@ -35,24 +38,33 @@ class Team{
         return $self;
     }
 
-    public static function findAll(){
+    public static function findAll() : array
+    {
         $sql = "SELECT * FROM team ORDER BY id DESC";
-        $tickets = [];
+        $teams = [];
         $self = new static;
         $res = $self->db->query($sql);
         
         if($res->num_rows < 1) return new static;
 
         while($row = $res->fetch_object()){
-            $ticket = new static;
-            $ticket->populateObject($row);
-            $tickets[] = $ticket;
+            $team = new static;
+            $team->populateObject($row);
+            $teams[] = $team;
         }
 
-        return $tickets;
+        return $teams;
     } 
 
-    public function populateObject($object){
+    public static function delete($id) : bool 
+    {
+        $sql = "DELETE FROM team WHERE id = '$id'";
+        $self = new static;
+        return $self->db->query($sql);
+    }
+
+    public function populateObject($object) : void 
+    {
 
         foreach($object as $key => $property){
             $this->$key = $property;

@@ -12,7 +12,8 @@ class Requester{
     private $db = null;
 
 
-    public function __construct($data = null) {
+    public function __construct($data = null) 
+    {
         $this->name = $data['name'];
         $this->email = $data['email'];
         $this->phone = $data['phone'];
@@ -22,7 +23,8 @@ class Requester{
         return $this;
     }
 
-    public function save(){
+    public function save() : Requester
+    {
         $sql = "INSERT INTO requester (name, email, phone)
                 VALUES ('$this->name', '$this->email', '$this->phone');
         ";
@@ -34,7 +36,8 @@ class Requester{
 
     }
 
-    public static function find($id){
+    public static function find($id) : Requester
+    {
         $sql ="SELECT * FROM requester WHERE id = '$id'";
         $self = new static;
         $res = $self->db->query($sql);
@@ -43,31 +46,61 @@ class Requester{
         return $self;
     }
 
-    public static function findAll(){
+    public static function findAll() :array
+    {
         $sql = "SELECT * FROM requester ORDER BY id DESC";
-        $tickets = [];
+        $requesters = [];
         $self = new static;
         $res = $self->db->query($sql);
         
         if($res->num_rows < 1) return new static;
 
         while($row = $res->fetch_object()){
-            $ticket = new static;
-            $ticket->populateObject($row);
-            $tickets[] = $ticket;
+            $requester = new static;
+            $requester->populateObject($row);
+            $requesters[] = $requester;
         }
 
-        return $tickets;
+        return $requesters;
     } 
 
-    public function populateObject($object){
+    /**
+     * @param array [$column => $value] Takes an array as key value pair
+     * @return  array Array of requester
+     */ 
+    public static function findByColumn($data) :array
+    {
+        $field = key($data);
+        $value = $data[$field];
+
+        $sql = "SELECT * FROM requester WHERE $field LIKE '%$value%' ORDER BY id DESC";
+        $requesters = [];
+        $self = new static;
+        $res = $self->db->query($sql);
+        
+        if($res->num_rows < 1) return [];
+
+        while($row = $res->fetch_object()){
+            $requester = new static;
+            $requester->populateObject($row);
+            $requesters[] = $requester;
+        }
+
+        return $requesters;
+    } 
+
+    public static function delete($id) : bool 
+    {
+        $sql = "DELETE FROM requester WHERE id = '$id";
+        $self = new static;
+        return $self->db->query($sql);
+    }
+
+    public function populateObject($object) : void
+    {
 
         foreach($object as $key => $property){
             $this->$key = $property;
         }
-    }
-
-
-
-    
+    }    
 }

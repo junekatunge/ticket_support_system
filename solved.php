@@ -19,7 +19,7 @@
                                 <th>Subject</th>
                                 <th>Requester</th>
                                 <th>Team</th>
-                                <th>Agent</th>
+                                <th>Aget</th>
                                 <th>Requested</th>
                                 <th>Updated</th>
                                 <th>Action</th>

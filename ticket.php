@@ -3,6 +3,7 @@
   require_once './src/requester.php';
   require_once './src/ticket.php';
   require_once './src/ticket-event.php';
+  require './src/helper-functions.php';
 
   $err = '';
   $msg = '';
@@ -29,8 +30,10 @@
           $err = "Please enter requester name";
       } else if(strlen($email) < 1) {
           $err = "Please enter requester email address";
-      } else if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+      } else if(!isValidEmail($email)){
           $err = "PLease enter a valid email address";
+      } else if(!isValidPhone($phone)){
+          $err = "Please enter a valid phone number";
       } else if(strlen($subject) < 1){
           $err = "Please enter subject";
       } else if(strlen($comment) < 1){
