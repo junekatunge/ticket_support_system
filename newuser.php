@@ -1,79 +1,65 @@
 <?php
   include './header.php';
-  require_once './src/requester.php';
-  require_once './src/ticket.php';
-  require_once './src/ticket-event.php';
+ 
+  require_once './src/user.php';
   require './src/helper-functions.php';
 
   $err = '';
   $msg = '';
 
-  # getting teams 
-  $sql = "SELECT id, name FROM team ORDER BY name ASC";
-  $res = $db->query($sql);
-  $teams = [];
-  while($row = $res->fetch_object()){
-      $teams[] = $row;
-  }
+  if(isset($_POST['submit'])) {
 
-  if(isset($_POST['submit'])){
+
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $phone = $_POST['phone'];
+    $password = $_POST['password'];
+    $confirm_pass = $_POST['confirm-password'];
+
+
+   if(strlen($name) < 1 ){
+       $err = "Please enter user name";
+   } else if(strlen($email) < 1 ){
+       $err = "please enter email";
+   }else if(!isValidEmail($email) ) {
+       $err = "please enter a valid email";
+   } else if(strlen($phone) < 1 ) {
+     $err = "please enter phone no";
+
+   } else if(!isValidPhone($phone)){
+       $err = "please enter a valid phone no";
+   } else if(strlen($password) < 1){
+       $err = "please enter a password";
+   }else if(strlen($password) < 8 ) {
+       $err = "please should be atleast 8 character";
+   } else if($password != $confirm_pass) {
+       $err = "password doesnot match";
+   } else {
+
+    try {
+
+        $user = new User([
+
+            'name' => $name,
+            'email' => $email,
+            'phone' => $phone,
+            'password' => password_hash($password, PASSWORD_DEFAULT),
+            'role' => 'member',
+            'last_password' => password_hash($password, PASSWORD_DEFAULT)
+        ]);
+
+        $user->save();
+        $msg = "User Created successfully";
+
+    } catch (Exception $e) {
+       $err = "Unable to create user";
+    }
+
     
-      $name = $_POST['name'];
-      $email = $_POST['email'];
-      $phone = $_POST['phone'];
-      $subject = $_POST['subject'];
-      $comment = $_POST['comment']; 
-      $team = $_POST['team'];
-      $priority = $_POST['priority'];
+}
+}
 
-      if(strlen($name) < 1) {
-          $err = "Please enter requester name";
-      } else if(strlen($email) < 1) {
-          $err = "Please enter requester email address";
-      } else if(!isValidEmail($email)){
-          $err = "PLease enter a valid email address";
-      } else if(!isValidPhone($phone)){
-          $err = "Please enter a valid phone number";
-      } else if(strlen($subject) < 1){
-          $err = "Please enter subject";
-      } else if(strlen($comment) < 1){
-          $err = "Please enter comment";
-      } else if($team == 'none'){
-          $err = "Please select team";
-      } else {
-        try{
-            $requester = new Requester([
-                'name' => $name,
-                'email' => $email,
-                'phone' => $phone
-            ]); //this obj has no id
-            
-            $savedRequester = $requester->save(); //this obj has the id,because of save();cz it returns an obj
-      
-            $ticket = new Ticket([
-                'title' => $subject,
-                'body' => $comment,
-                'requester' => $savedRequester->id,
-                'team' => $team,
-                'priority' => $priority
-            ]); 
-      
-            $savedTicket = $ticket->save();
-
-            $event = new Event([
-                'ticket' => $savedTicket->id, 
-                'user' => $user->id, 
-                'body' => 'Ticket created'
-            ]);
-            $event->save();
-
-            $msg = "Ticket generated successfully";
-        } catch(Exception $e){
-            $err = "Failed to generate ticket";
-        }
-      }
-  }
-?>
+ ?>
 <div id="content-wrapper">
 
     <div class="container-fluid">
@@ -89,7 +75,8 @@
                 <h3>Create a new ticket</h3>
             </div>
             <div class="card-body">
-                <?php if(strlen($err) > 1) :?>
+               
+              <?php if(strlen($err) > 1) :?>
                 <div class="alert alert-danger text-center my-3" role="alert"> <strong>Failed! </strong> <?php echo $err;?></div>
                 <?php endif?>
 
@@ -116,40 +103,24 @@
                             <input type="text" name="phone" class="form-control" id="" placeholder="Enter phone number">
                         </div>
                     </div>
+                 
+                   
+                 
                     <div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
-                        <label for="name" class="col-sm-12 col-lg-2 col-md-2 col-form-label">Subject</label>
+                        <label for="email" class="col-sm-12 col-lg-2 col-md-2 col-form-label">Password</label>
                         <div class="col-sm-8">
-                            <input type="text" name="subject" class="form-control" id="" placeholder="Enter subject">
+                            <input type="password" name="password" class="form-control" id="" placeholder="Enter password">
                         </div>
                     </div>
                     <div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
-                        <label for="name" class="col-sm-12 col-lg-2 col-md-2 col-form-label">Comment</label>
+                        <label for="email" class="col-sm-12 col-lg-2 col-md-2 col-form-label">Confirm Password </label>
                         <div class="col-sm-8">
-                            <textarea name="comment" class="form-control" id="" placeholder="Enter comment"></textarea>
+                            <input type="password" name="confirm-password" class="form-control" id="" placeholder="Enter confirm password">
                         </div>
                     </div>
-                    <div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
-                        <label for="name" class="col-sm-12 col-lg-2 col-md-2 col-form-label">Team</label>
-                        <div class="col-sm-8">
-                            <select name="team" class="form-control">
-                                <option>--select--</option>
-                                <?php foreach($teams as $team):?>
-                                <option value="<?php echo $team->id?>"> <?php echo $team->name?></option>
-                                <?php endforeach?>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
-                        <label for="name" class="col-sm-12 col-lg-2 col-md-2 col-form-label">Priority</label>
-                        <div class="col-sm-8">
-                            <select name="priority" class="form-control">
-                                <option value="low">Low</option>
-                                <option value="medium">Medium</option>
-                                <option value="high">High</option>
-                            </select>
-                        </div>
-                    </div>
+                 
+                 
+                   
                     <div class="text-center">
                         <button type="submit" name="submit" class="btn btn-lg btn-primary"> Create</button>
                     </div>

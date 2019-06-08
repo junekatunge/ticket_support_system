@@ -42,7 +42,7 @@ class Event{
         $sql ="SELECT * FROM ticket_event WHERE ticket = '$id'";
         $self = new static;
         $res = $self->db->query($sql);
-        if($res->num_rows < 1) return false;
+        if($res->num_rows < 1) return $self;
         $self->populateObject($res->fetch_object());
         return $self;
     }
@@ -68,11 +68,12 @@ class Event{
     public static function findByTicket($id) : array 
     {
         $sql = "SELECT * FROM ticket_event WHERE ticket = '$id'";
+        //print_r($sql);die();
         $events = [];
         $self = new static;
         $res = $self->db->query($sql);
         
-        if($res->num_rows < 1) return new static;
+        if($res->num_rows < 1) return [];
 
         while($row = $res->fetch_object()){
             $event = new static;

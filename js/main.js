@@ -8,7 +8,8 @@ const getTeamMember = function (teamId){
         'success': function(response){
             let result = JSON.parse(response);
             const options = [];
-
+            let option = `<option value="none">--select--</option>`;
+            options.push(option);
             for(let i = 0; i< result.length; i++){
                 let option = `<option value="${result[i].id}">${result[i].name}</option>`;
                 options.push(option);
@@ -19,3 +20,5 @@ const getTeamMember = function (teamId){
         }
     });
 }
+
+

@@ -1,5 +1,5 @@
 <?php
-class Team{
+class User{
     
     public $id = null;
     
@@ -16,6 +16,10 @@ class Team{
     public function __construct($data = null) {
         $this->name = $data['name'];
         $this->email = $data['email'];
+        $this->phone = $data['phone'];
+        $this->password = $data['password'];
+        $this->role = $data['role'];
+        $this->lastPassword = $data['password'];
         
         $this->db = Database::getInstance();
 
@@ -23,9 +27,9 @@ class Team{
     }
 
     public function save(){
-        $sql = "INSERT INTO team (name)
-                VALUES ('$this->name');
-        ";
+        $sql = "INSERT INTO  users (name, email,phone, password, role, last_password)
+                VALUES ('$this->name', '$this->email', '$this->phone', '$this->password', '$this->role', '$this->lastPassword')";
+                //print_r($sql);die();
         if($this->db->query($sql) === false) {
             throw new Exception($this->db->error);
         }
@@ -35,7 +39,8 @@ class Team{
     }
 
     public static function find($id){
-        $sql ="SELECT * FROM team WHERE id = '$id'";
+        $sql ="SELECT * FROM users WHERE id = '$id'";
+       // print_r($sql);die();
         $self = new static;
         $res = $self->db->query($sql);
         if($res->num_rows < 1) return false;
@@ -44,20 +49,20 @@ class Team{
     }
 
     public static function findAll(){
-        $sql = "SELECT * FROM team ORDER BY id DESC";
-        $tickets = [];
+        $sql = "SELECT * FROM users ORDER BY id DESC";
+        $users = [];
         $self = new static;
         $res = $self->db->query($sql);
         
         if($res->num_rows < 1) return new static;
 
         while($row = $res->fetch_object()){
-            $ticket = new static;
-            $ticket->populateObject($row);
-            $tickets[] = $ticket;
+            $user = new static;
+            $user->populateObject($row);
+            $users[] = $user;
         }
 
-        return $tickets;
+        return $users;
     } 
 
 

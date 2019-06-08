@@ -1,33 +1,19 @@
 <?php
     include './header.php';
-    require_once './src/ticket.php';
-    require_once './src/requester.php';
-    require_once './src/team.php';
+   
+    require_once './src/user.php';
 
-    $ticket = new Ticket();
+    $users =  User::findAll();
+    //print_r($users);die();
 
-    $allTicket = $ticket::findAll();
 
-    $requester = new Requester();
-    $team = new Team();
 
-    if (isset($_GET['del'])) {
+    
 
-      $id = $_GET['del'];
-      
-     
-      try {
+ 
 
-         
-          $ticket->delete($id);
-         // print_r($ticket->delete($id)); die();
-          echo '<script>alert("Ticket deleted successfully");window.location = "./dashboard.php"</script>';
-      } catch (Exception $e) {
-          echo $e->getMessage();
-      }
-  
-  }
-  
+
+
 
 ?>
 <div id="content-wrapper">
@@ -35,34 +21,36 @@
   <div class="container-fluid">
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
-        <a href="#">Dashboard</a>
+        <a href="#">Users</a>
       </li>
       <li class="breadcrumb-item active">Overview</li>
     </ol>
-    <a class="btn btn-primary my-3" href="./ticket.php"><i class="fa fa-plus"></i> New Ticket</a>
+    <a class="btn btn-primary my-3" href="./newuser.php"><i class="fa fa-plus"></i>Create New User</a>
     <div class="card mb-3">
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-bordered table-sm" id="dataTable" width="100%" cellspacing="0">
                         <thead>
+                        
+
                             <tr>
-                                <th>Subject</th>
-                                <th>Requester</th>
-                                <th>Team</th>
-                                <th>Agent</th>
-                                <th>Created At</th>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Created at</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach($allTicket as $ticket):?>
+                         <?php foreach($users as $user): ?>
                             <tr>
-                                <td><a href="./ticket-details.php?id=<?php echo $ticket->id?>"><?php echo $ticket->title?></a></td>
-                                <td><?php echo $requester::find($ticket->requester)->name?></td>
-                                <td><?php echo $team::find($ticket->team)->name;?></td>
-                                <td>--</td>
-                                <?php $date = new DateTime($ticket->created_at)?>
-                                <td><?php echo $date->format('d-m-Y H:i:s')?> </td>
+                                <td><?php echo $user->name ?></td>
+                                <td><?php echo $user->role ?></td>
+                                <td><?php echo $user->email ?></td>
+                                <td><?php echo $user->phone ?></td>
+                                <?php $date = new DateTime($user->created_at) ?>
+                                <td><?php echo $date->format('d-m-Y H:i:s') ?></td>
                                 <td width="100px">
                                     <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
                                         <div class="btn-group" role="group">
@@ -74,13 +62,13 @@
                                             <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                                 <a class="dropdown-item" href="#">View</a>
                                                 <a class="dropdown-item" href="#">Update</a>
-                                                <a class="dropdown-item" onclick="return confirm('Are you sure to delete')" href="?del=<?php echo $ticket->id; ?>">Delete</a>
+                                                <a class="dropdown-item" href="#">Delete</a>
                                             </div>
                                         </div>
                                     </div>
                                 </td>
                             </tr>
-                            <?php endforeach?>
+                          <?php endforeach ?>
                         </tbody>
                     </table>
                 </div>

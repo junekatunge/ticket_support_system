@@ -8,33 +8,34 @@ class TeamMember{
     public $team = '';
 
 
-    public function __construct($data = null) 
+    public function __construct($data = null) //u have to pass data when obj create,initially null
     {
-        $this->user = $data['name'];
+        $this->user = $data['id'];
         $this->team = $data['team-id'];
         
-        $this->db = Database::getInstance();
+        $this->db = Database::getInstance(); //creating singleton obj,because it is static functn
 
         return $this;
     }
 
+     //this function returns Teammember obj
     public function save() : TeamMember
     {
         $sql = "INSERT INTO team_member (user, team)
-                VALUES ('$this->name', '$this->teamId');
-        ";
+                VALUES ('$this->user', '$this->team')";
+               // print_r($sql);die();
         if($this->db->query($sql) === false) {
             throw new Exception($this->db->error);
         }
-        $id = $this->db->insert_id;
-        return self::find($id);
+        $id = $this->db->insert_id; //store last id in var,
+        return self::find($id); //returns obj
 
     }
 
     public static function find($id) : TeamMember
     {
         $sql ="SELECT * FROM team_member WHERE id = '$id'";
-        $self = new static;
+        $self = new static; //ceate an obj, u dont need to create the obj 
         $res = $self->db->query($sql);
         if($res->num_rows < 1) return false;
         $self->populateObject($res->fetch_object());
@@ -43,12 +44,12 @@ class TeamMember{
 
     public static function findByTeam($id) : array
     {
-        $sql = "SELECT * FROM team_member WHERE id = '$id' ORDER BY id DESC";
+        $sql = "SELECT * FROM team_member WHERE team = '$id' ORDER BY id DESC";
         $members = [];
         $self = new static;
         $res = $self->db->query($sql);
         
-        if($res->num_rows < 1) return new static;
+        if($res->num_rows < 1) return [];
 
         while($row = $res->fetch_object()){
             $member = new static;

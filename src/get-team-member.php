@@ -15,5 +15,5 @@ foreach($members as $member){
     $data[] = $obj;
     
 }
-
+//print_r($data);die();
 echo json_encode($data);

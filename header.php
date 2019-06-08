@@ -118,11 +118,19 @@ $db = Database::getInstance();
           <span> My tickets</span>
         </a>
       </li>
+      <?php if($user->role == 'admin'): ?>
       <li class="nav-item active">
         <a class="nav-link" href="./team.php">
           <i class="fa fa-fw fa-users"></i>
           <span> Teams</span>
         </a>
       </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="./users.php">
+          <i class="fa fa-fw fa-users"></i>
+          <span> Users</span>
+        </a>
+      </li>
+   <?php endif; ?>  
     </ul>
     

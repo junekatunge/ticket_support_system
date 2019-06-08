@@ -39,8 +39,7 @@ class Ticket{
     public function save() : Ticket
     {
         $sql = "INSERT INTO ticket (title, body, requester, team, team_member, status, priority)
-                VALUES ('$this->title', '$this->body', '$this->requester', '$this->team', '$this->team_member', '$this->status', '$this->priority');
-        ";
+                VALUES ('$this->title', '$this->body', '$this->requester', '$this->team', '$this->team_member', '$this->status', '$this->priority')";
         
         if($this->db->query($sql) === false) {
             throw new Exception($this->db->error);
@@ -80,6 +79,7 @@ class Ticket{
     public static function findByStatus($status) : array
     {
         $sql = "SELECT * FROM ticket WHERE status = '$status' ORDER BY id DESC";
+        //print_r($sql);die();
         $self = new static;
         $tickets = [];
         $res = $self->db->query($sql);
@@ -100,7 +100,8 @@ class Ticket{
 
     public static function delete($id) : bool
     {
-        $sql = "DELETE FROM ticket WHERE id = '$id";
+        $sql = "DELETE FROM ticket WHERE id = '$id'";
+       // print_r($sql);die();
         $self = new static;
         return $self->db->query($sql);
     }
@@ -142,6 +143,38 @@ class Ticket{
             $this->$key = $property;
         }
     }
+
+    public function update($id) : Ticket
+    {
+
+        $sql = "UPDATE ticket set `team_member` = '$this->team_member', `title` = '$this->title',`body` = '$this->body',
+         `requester`='$this->requester', `team`= '$this->team', `status`= '$this->status', `priority`='$this->priority'
+          Where id = '$id'";
+        //print_r($sql);die();    
+        if($this->db->query($sql) === false) {
+            throw new Exception($this->db->error);
+        }
+       // $id = $this->db->insert_id;
+        return self::find($id);
+
+    }
+
+    public function unassigned()
+     {
+
+        $sql = "SELECT * FROM ticket WHERE team_member = '' ORDER BY id DESC";
+        //print_r($sql); die();
+        $self = new static;
+        $tickets = [];
+        $res = $self->db->query($sql);
+        
+        while($row = $res->fetch_object()){
+            $ticket[] = $row;
+        }
+
+        return $ticket;
+
+     }
 
 
 }
