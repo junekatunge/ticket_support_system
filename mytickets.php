@@ -1,5 +1,12 @@
 <?php
-  include './header.php';
+include './header.php';
+require_once './src/ticket.php';
+require_once './src/requester.php';
+require_once './src/team.php';
+require_once './src/user.php';
+
+$tickets = Ticket::findByMember($user->id);
+
 ?>
 <div id="content-wrapper">
 
@@ -21,19 +28,25 @@
                                 <th>Team</th>
                                 <th>Agent</th>
                                 <th>Requested</th>
-                                <th>Updated</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
+                            <?php foreach($tickets as $ticket):?>
                             <tr>
-                                <td>Tiger Nixon</td>
-                                <td>System Architect</td>
-                                <td>Edinburgh</td>
-                                <td>61</td>
-                                <td>2011/04/25</td>
-                                <td>$320,800</td>
-                                <td>
+                                <td><a
+                                        href="./ticket-details.php?id=<?php echo $ticket->id?>"><?php echo $ticket->title?></a>
+                                </td>
+                                <td><?php echo Requester::find($ticket->requester)->name?></td>
+                                <td><?php echo Team::find($ticket->team)->name;?></td>
+                                <?php $usr =  $ticket->team_member ?>
+                                <?php if($usr == ''): ?>
+                                <td><?php echo $usr ?></td>
+                                <?php endif; ?>
+                                <td><button class="btn btn-danger"><?php echo $ticket->status ?></button></td>
+                                <?php $date = new DateTime($ticket->created_at)?>
+                                <td><?php echo $date->format('d-m-Y H:i:s')?> </td>
+                                <td width="100px">
                                     <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
                                         <div class="btn-group" role="group">
                                             <button id="btnGroupDrop1" type="button"
@@ -42,86 +55,14 @@
                                                 Action
                                             </button>
                                             <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                                <a class="dropdown-item" href="#">View</a>
-                                                <a class="dropdown-item" href="#">Update</a>
-                                                <a class="dropdown-item" href="#">Delete</a>
+                                                <a class="dropdown-item"
+                                                    href="./ticket-details.php?id=<?php echo $ticket->id?>">View</a>
                                             </div>
                                         </div>
                                     </div>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>Garrett Winters</td>
-                                <td>Accountant</td>
-                                <td>Tokyo</td>
-                                <td>63</td>
-                                <td>2011/07/25</td>
-                                <td>$170,750</td>
-                                <td>
-                                    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-                                        <div class="btn-group" role="group">
-                                            <button id="btnGroupDrop1" type="button"
-                                                class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown"
-                                                aria-haspopup="true" aria-expanded="false">
-                                                Action
-                                            </button>
-                                            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                                <a class="dropdown-item" href="#">View</a>
-                                                <a class="dropdown-item" href="#">Update</a>
-                                                <a class="dropdown-item" href="#">Delete</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Ashton Cox</td>
-                                <td>Junior Technical Author</td>
-                                <td>San Francisco</td>
-                                <td>66</td>
-                                <td>2009/01/12</td>
-                                <td>$86,000</td>
-                                <td>
-                                    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-                                        <div class="btn-group" role="group">
-                                            <button id="btnGroupDrop1" type="button"
-                                                class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown"
-                                                aria-haspopup="true" aria-expanded="false">
-                                                Action
-                                            </button>
-                                            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                                <a class="dropdown-item" href="#">View</a>
-                                                <a class="dropdown-item" href="#">Update</a>
-                                                <a class="dropdown-item" href="#">Delete</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Cedric Kelly</td>
-                                <td>Senior Javascript Developer</td>
-                                <td>Edinburgh</td>
-                                <td>22</td>
-                                <td>2012/03/29</td>
-                                <td>$433,060</td>
-                                <td>
-                                    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-                                        <div class="btn-group" role="group">
-                                            <button id="btnGroupDrop1" type="button"
-                                                class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown"
-                                                aria-haspopup="true" aria-expanded="false">
-                                                Action
-                                            </button>
-                                            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                                <a class="dropdown-item" href="#">View</a>
-                                                <a class="dropdown-item" href="#">Update</a>
-                                                <a class="dropdown-item" href="#">Delete</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
+                            <?php endforeach?>
                         </tbody>
                     </table>
                 </div>

@@ -1,90 +1,81 @@
 <?php
-  include './header.php';
-  if(!isset($_GET['id']) || strlen($_GET['id']) < 1 || !ctype_digit($_GET['id'])){
+include './header.php';
+if (!isset($_GET['id']) || strlen($_GET['id']) < 1 || !ctype_digit($_GET['id'])) {
     echo '<script> history.back()</script>';
     exit();
-  }
+}
 
-  require_once './src/requester.php';
-  require_once './src/team.php';
-  require_once './src/ticket.php';
-  require_once './src/ticket-event.php';
-  require_once './src/team-member.php';
-  require_once './src/comment.php';
- 
-  $err = '';
-  $msg = '';
- $ticket = Ticket::find($_GET['id']);
- //print_r($ticket->team_member);die();
+require_once './src/requester.php';
+require_once './src/team.php';
+require_once './src/ticket.php';
+require_once './src/ticket-event.php';
+require_once './src/team-member.php';
+require_once './src/comment.php';
 
-  $teams = Team::findAll();
+$err = '';
+$msg = '';
+$ticket = Ticket::find($_GET['id']);
+//print_r($ticket->team_member);die();
 
-  $events = Event::findByTicket($ticket->id);
+$teams = Team::findAll();
 
+$events = Event::findByTicket($ticket->id);
 
+$comments = Comment::findByTicket($ticket->id);
 
-
-
-  if(isset($_POST['submit'])) {
+if (isset($_POST['submit'])) {
 
     $team = $_POST["team_member"];
-   // print_r($team);die();
+    // print_r($team);die();
     $id = $_GET['id'];
     //print_r($id);die();
- 
 
     try {
-
 
         $ticket = new Ticket([
 
             'team_member' => $team,
             'title' => $ticket->title,
-            'body' =>$ticket->body,
+            'body' => $ticket->body,
             'requester' => $ticket->requester,
             'team' => $ticket->team,
             'status' => $ticket->status,
-            'priority' => $ticket->priority
+            'priority' => $ticket->priority,
         ]);
 
         $updateTicket = $ticket->update($id);
-       // print_r($updateTicket);die();
+        // print_r($updateTicket);die();
 
-       $msg = "Ticket assigned successfully";
-        
+        $msg = "Ticket assigned successfully";
+
     } catch (Exception $e) {
 
         $err = "Failed to assigned ticket";
-        
+
     }
 }
 
-    if(isset($_POST['comment'])) {
+if (isset($_POST['comment'])) {
 
-        $body = $_POST["body"];
-       // print_r($body);die();
- 
-        try {
-            $comment = new Comment([
-                'ticket-id' => $ticket->id,
-                'team-member' => $ticket->team_member,
-                'body' => $body
-                
-               ]);
-             $comment->save();
-             //  print_r($cv);die();
-            $msg = "Successfully comment on the ticket";
-           
+    $body = $_POST["body"];
 
-        } catch (Exception $e) {
+    try {
+        $comment = new Comment([
+            'ticket-id' => $ticket->id,
+            'team-member' => $ticket->team_member,
+            'body' => $body,
 
+        ]);
+        $comment->save();
+        //  print_r($cv);die();
+        $msg = "Successfully comment on the ticket";
 
-            $err = "Failed to comment on the ticket";
-        }
-       
+    } catch (Exception $e) {
+        var_dump($e);
+        $err = "Failed to comment on the ticket";
     }
 
- 
+}
 
 ?>
 <div id="content-wrapper">
@@ -182,6 +173,22 @@
                         </div>
                         <div id="msg">
                     </div>
+        </div>
+
+        <div class="col-lg-12 my-3">
+            <div class="list-group">
+                <?php foreach($comments as $c):?>
+                <a href="#" class="list-group-item list-group-item-action">
+                    <h6 class="mb-1"><?php echo TeamMember::getName($c->team_member)?></h6>
+                    <div class="d-flex w-100 justify-content-between">
+                        
+                        <p class="mb-1"><?php echo $c->body?></p>
+                        <?php $d = new DateTime($c->created_at)?>
+                        <small><?php echo $d->format('d-m-Y H:i:s')?></small>
+                    </div>
+                </a>
+                <?php endforeach?>
+            </div>
         </div>
 
         <div class="col-lg-12 my-3">

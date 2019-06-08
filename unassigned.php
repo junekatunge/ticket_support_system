@@ -8,8 +8,7 @@
     $ticket = new Ticket();
 
     $allTicket = $ticket->unassigned();
-   // print_r($allTicket);die();
-
+   
     $requester = new Requester();
     $team = new Team();
     $user = new User();
@@ -61,9 +60,7 @@
                                                 Action
                                             </button>
                                             <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                                <a class="dropdown-item" href="#">View</a>
-                                                <a class="dropdown-item" href="#">Update</a>
-                                                <a class="dropdown-item" href="#">Delete</a>
+                                                <a class="dropdown-item" href="./ticket-details.php?id=<?php echo $ticket->id?>">View</a>
                                             </div>
                                         </div>
                                     </div>

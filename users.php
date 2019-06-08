@@ -39,7 +39,7 @@
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Created at</th>
-                                <th>Action</th>
+                               
                             </tr>
                         </thead>
                         <tbody>
@@ -51,22 +51,7 @@
                                 <td><?php echo $user->phone ?></td>
                                 <?php $date = new DateTime($user->created_at) ?>
                                 <td><?php echo $date->format('d-m-Y H:i:s') ?></td>
-                                <td width="100px">
-                                    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-                                        <div class="btn-group" role="group">
-                                            <button id="btnGroupDrop1" type="button"
-                                                class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown"
-                                                aria-haspopup="true" aria-expanded="false">
-                                                Action
-                                            </button>
-                                            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                                <a class="dropdown-item" href="#">View</a>
-                                                <a class="dropdown-item" href="#">Update</a>
-                                                <a class="dropdown-item" href="#">Delete</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
+                                
                             </tr>
                           <?php endforeach ?>
                         </tbody>

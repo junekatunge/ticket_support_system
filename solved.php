@@ -61,9 +61,7 @@
                                                 Action
                                             </button>
                                             <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                                <a class="dropdown-item" href="#">View</a>
-                                                <a class="dropdown-item" href="#">Update</a>
-                                                <a class="dropdown-item" href="#">Delete</a>
+                                                <a href="./ticket-details.php?id=<?php echo $ticket->id?>" class="dropdown-item" href="#">View</a>
                                             </div>
                                         </div>
                                     </div>

@@ -50,7 +50,21 @@
         }
     }
 
+    public static function findByTicket($id) : array 
+    {
+        $sql = "SELECT * FROM comments WHERE ticket = '$id'";
+        $comments = [];
+        $self = new static;
+        $res = $self->db->query($sql);
+        
+        if($res->num_rows < 1) return $comments;
 
+        while($row = $res->fetch_object()){
+            $comment = new static;
+            $comment->populateObject($row);
+            $comments[] = $comment;
+        }
 
-
+        return $comments;
+    }
  }
