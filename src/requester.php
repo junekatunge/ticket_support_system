@@ -7,16 +7,16 @@ class Requester{
 
     public $email = '';
 
-    public $phone = '';
+    public $room = '';
 
     private $db = null;
 
 
     public function __construct($data = null) 
     {
-        $this->name = $data['name'];
-        $this->email = $data['email'];
-        $this->phone = $data['phone'];
+        $this->name = isset($data['name']) ? $data['name'] :null ;
+        $this->email = isset($data['email']) ? $data['email'] : null ;
+        $this->room = isset($data['room']) ? $data['room'] : null ;
         
         $this->db = Database::getInstance();
 
@@ -25,8 +25,8 @@ class Requester{
 
     public function save() : Requester
     {
-        $sql = "INSERT INTO requester (name, email, phone)
-                VALUES ('$this->name', '$this->email', '$this->phone');
+        $sql = "INSERT INTO requester (name, email, room)
+                VALUES ('$this->name', '$this->email', '$this->room');
         ";
         if($this->db->query($sql) === false) {
             throw new Exception($this->db->error);

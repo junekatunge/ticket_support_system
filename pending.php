@@ -49,7 +49,7 @@
                                 <?php if($usr !== ''): ?>
                                 <td><?php echo $usr ?></td>
 <?php endif; ?>
-                                <td><button class= "btn btn-danger"><?php echo $ticket->status ?></button></td>
+                                <td><button class= "btn btn-warning"><?php echo $ticket->status ?></button></td>
                                 <?php $date = new DateTime($ticket->created_at)?>
                                 <td><?php echo $date->format('d-m-Y H:i:s')?> </td>
                                 <td width="100px">
@@ -81,7 +81,7 @@
   <footer class="sticky-footer">
     <div class="container my-auto">
       <div class="copyright text-center my-auto">
-        <span>Copyright © Your Website 2019</span>
+      <span>Copyright © The National Treasury</span>
       </div>
     </div>
   </footer>

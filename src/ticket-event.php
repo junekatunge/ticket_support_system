@@ -15,9 +15,9 @@ class Event{
 
     public function __construct($data = null) 
     {
-        $this->ticket = $data['ticket'];
-        $this->user = $data['user'];
-        $this->body = $data['body'];
+        $this->ticket = isset($data['ticket']) ? $data['ticket'] : null ;
+        $this->user = isset($data['user']) ? $data['user'] : null ;
+        $this->body = isset($data['body']) ? $data['body'] : null ;
 
         $this->db = Database::getInstance();
 

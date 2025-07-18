@@ -20,7 +20,7 @@
     
       $name = $_POST['name'];
       $email = $_POST['email'];
-      $phone = $_POST['phone'];
+      $room = $_POST['room'];
       $subject = $_POST['subject'];
       $comment = $_POST['comment']; 
       $team = $_POST['team'];
@@ -32,8 +32,8 @@
           $err = "Please enter requester email address";
       } else if(!isValidEmail($email)){
           $err = "PLease enter a valid email address";
-      } else if(!isValidPhone($phone)){
-          $err = "Please enter a valid phone number";
+      } else if(!isValidroom($room)){
+          $err = "Please enter a valid room number";
       } else if(strlen($subject) < 1){
           $err = "Please enter subject";
       } else if(strlen($comment) < 1){
@@ -45,7 +45,7 @@
             $requester = new Requester([
                 'name' => $name,
                 'email' => $email,
-                'phone' => $phone
+                'room' => $room
             ]); //this obj has no id
             
             $savedRequester = $requester->save(); //this obj has the id,because of save();cz it returns an obj
@@ -111,9 +111,9 @@
                         </div>
                     </div>
                     <div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
-                        <label for="email" class="col-sm-12 col-lg-2 col-md-2 col-form-label">Phone</label>
+                        <label for="email" class="col-sm-12 col-lg-2 col-md-2 col-form-label">room</label>
                         <div class="col-sm-8">
-                            <input type="text" name="phone" class="form-control" id="" placeholder="Enter phone number">
+                            <input type="text" name="room" class="form-control" id="" placeholder="Enter room number">
                         </div>
                     </div>
                     <div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
@@ -164,7 +164,7 @@
     <footer class="sticky-footer">
         <div class="container my-auto">
             <div class="copyright text-center my-auto">
-                <span>Copyright © Your Website 2019</span>
+            <span>Copyright © The National Treasury</span>
             </div>
         </div>
     </footer>

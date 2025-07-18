@@ -6,8 +6,8 @@ class Database {
 
     private static $host = 'localhost';
     private static $user = 'root';
-    private static $password = 'password';
-    private static $db = 'helpdesk-core';
+    private static $password = '';
+    private static $db = 'helpdesk_core_php';
     
     public static function getInstance(){
         if(self::$instance == null){

@@ -8,7 +8,7 @@ class Team{
 
     public function __construct($data = null) 
     {
-        $this->name = $data['name'];
+        $this->name = isset($data['name']) ? $data['name'] : null;
         
         $this->db = Database::getInstance();
 

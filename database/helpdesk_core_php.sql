@@ -1,13 +1,14 @@
 -- phpMyAdmin SQL Dump
--- version 4.6.6deb5
+-- version 5.1.2
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Jun 08, 2019 at 03:44 PM
--- Server version: 5.7.22-0ubuntu0.17.10.1
--- PHP Version: 7.1.17-0ubuntu0.17.10.1
+-- Host: localhost
+-- Generation Time: Apr 07, 2023 at 10:04 AM
+-- Server version: 8.0.29-0ubuntu0.20.04.3
+-- PHP Version: 7.4.3
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
 SET time_zone = "+00:00";
 
 
@@ -27,10 +28,10 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `comments` (
-  `id` int(11) NOT NULL,
-  `ticket` int(11) NOT NULL,
-  `team_member` int(11) NOT NULL,
-  `private` int(1) NOT NULL DEFAULT '0',
+  `id` int NOT NULL,
+  `ticket` int NOT NULL,
+  `team_member` int NOT NULL,
+  `private` int NOT NULL DEFAULT '0',
   `body` varchar(256) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -44,7 +45,8 @@ INSERT INTO `comments` (`id`, `ticket`, `team_member`, `private`, `body`, `creat
 (1, 3, 4, 0, 'comment', '2019-05-31 13:54:56', '2019-05-31 13:54:56'),
 (2, 2, 1, 0, 'comment on ticket', '2019-05-31 13:57:19', '2019-05-31 13:57:19'),
 (3, 3, 4, 0, 'test comment', '2019-06-03 16:59:16', '2019-06-03 16:59:16'),
-(4, 3, 4, 0, 'test ticket comment', '2019-06-03 16:59:43', '2019-06-03 16:59:43');
+(4, 3, 4, 0, 'test ticket comment', '2019-06-03 16:59:43', '2019-06-03 16:59:43'),
+(5, 10, 4, 0, 'ddmo', '2023-03-20 07:01:34', '2023-03-20 07:01:34');
 
 -- --------------------------------------------------------
 
@@ -53,10 +55,10 @@ INSERT INTO `comments` (`id`, `ticket`, `team_member`, `private`, `body`, `creat
 --
 
 CREATE TABLE `requester` (
-  `id` int(11) NOT NULL,
+  `id` int NOT NULL,
   `name` varchar(150) NOT NULL,
   `email` varchar(150) NOT NULL,
-  `phone` varchar(20) NOT NULL,
+  `room` varchar(10) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -65,7 +67,7 @@ CREATE TABLE `requester` (
 -- Dumping data for table `requester`
 --
 
-INSERT INTO `requester` (`id`, `name`, `email`, `phone`, `created_at`, `updated_at`) VALUES
+INSERT INTO `requester` (`id`, `name`, `email`, `room`, `created_at`, `updated_at`) VALUES
 (31, 'mofiqul', 'example@email.com', '9876543210', '2019-05-19 13:24:08', '2019-05-19 13:24:08'),
 (32, 'mofiqul', 'example@email.com', '9876543210', '2019-05-19 13:45:22', '2019-05-19 13:45:22'),
 (33, 'mofiqul', 'example@email.com', '9876543210', '2019-05-19 13:46:01', '2019-05-19 13:46:01'),
@@ -79,7 +81,9 @@ INSERT INTO `requester` (`id`, `name`, `email`, `phone`, `created_at`, `updated_
 (41, 'test', 'kangkan@email.com', '1234567898', '2019-06-07 02:07:43', '2019-06-07 02:07:43'),
 (42, 'test ticket', 'johndoe@helpdesk.com', '1234567898', '2019-06-07 02:11:23', '2019-06-07 02:11:23'),
 (43, 'test123', 'kangkan@email.com', '1234567898', '2019-06-07 06:51:33', '2019-06-07 06:51:33'),
-(44, 'test ticket', 'johndoe@helpdesk.com', '1234567898', '2019-06-07 06:52:04', '2019-06-07 06:52:04');
+(44, 'test ticket', 'johndoe@helpdesk.com', '1234567898', '2019-06-07 06:52:04', '2019-06-07 06:52:04'),
+(45, 'demo ticket', 'demo@email.com', '1234567899', '2023-03-20 06:57:25', '2023-03-20 06:57:25'),
+(46, 'demo', 'demo@email.com', '1234567899', '2023-03-20 11:11:23', '2023-03-20 11:11:23');
 
 -- --------------------------------------------------------
 
@@ -88,7 +92,7 @@ INSERT INTO `requester` (`id`, `name`, `email`, `phone`, `created_at`, `updated_
 --
 
 CREATE TABLE `team` (
-  `id` int(11) NOT NULL,
+  `id` int NOT NULL,
   `name` varchar(150) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -110,9 +114,9 @@ INSERT INTO `team` (`id`, `name`, `created_at`, `updated_at`) VALUES
 --
 
 CREATE TABLE `team_member` (
-  `id` int(11) NOT NULL,
-  `user` int(11) NOT NULL,
-  `team` int(11) NOT NULL,
+  `id` int NOT NULL,
+  `user` int NOT NULL,
+  `team` int NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -136,15 +140,15 @@ INSERT INTO `team_member` (`id`, `user`, `team`, `created_at`, `updated_at`) VAL
 --
 
 CREATE TABLE `ticket` (
-  `id` int(11) NOT NULL,
+  `id` int NOT NULL,
   `title` varchar(150) NOT NULL,
   `body` text NOT NULL,
-  `requester` int(11) NOT NULL,
-  `team` int(11) DEFAULT NULL,
+  `requester` int NOT NULL,
+  `team` int DEFAULT NULL,
   `team_member` varchar(11) DEFAULT NULL,
   `status` varchar(20) NOT NULL DEFAULT 'open',
   `priority` varchar(20) NOT NULL DEFAULT 'low',
-  `rating` int(1) NOT NULL DEFAULT '0',
+  `rating` int NOT NULL DEFAULT '0',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` varchar(50) DEFAULT NULL,
   `deleted_at` varchar(50) DEFAULT NULL
@@ -160,8 +164,10 @@ INSERT INTO `ticket` (`id`, `title`, `body`, `requester`, `team`, `team_member`,
 (4, 'test', 'this is a comment', 39, 2, '4', 'open', 'low', 0, '2019-05-23 17:18:25', NULL, NULL),
 (5, 'test', 'hfg', 40, 1, '1', 'pending', 'high', 0, '2019-05-30 13:55:17', NULL, NULL),
 (6, 'abcd', 'no comment', 41, 3, '4', 'open', 'low', 0, '2019-06-07 02:07:43', NULL, NULL),
-(8, 'abcd', 'abcd', 43, 1, '', 'open', 'low', 0, '2019-06-07 06:51:33', NULL, NULL),
-(9, 'no subject', 'abcd', 44, 1, '', 'open', 'high', 0, '2019-06-07 06:52:04', NULL, NULL);
+(8, 'abcd', 'abcd', 43, 1, '4', 'open', 'low', 0, '2019-06-07 06:51:33', NULL, NULL),
+(9, 'no subject', 'abcd', 44, 1, '4', 'open', 'high', 0, '2019-06-07 06:52:04', NULL, NULL),
+(10, 'demo subject', 'se', 45, 2, '9', 'closed', 'low', 0, '2023-03-20 06:57:25', NULL, NULL),
+(11, 'demo subject', 'demo comment', 46, 1, '4', 'solved', 'medium', 0, '2023-03-20 11:11:23', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -170,9 +176,9 @@ INSERT INTO `ticket` (`id`, `title`, `body`, `requester`, `team`, `team_member`,
 --
 
 CREATE TABLE `ticket_event` (
-  `id` int(11) NOT NULL,
-  `ticket` int(11) NOT NULL,
-  `user` int(11) NOT NULL,
+  `id` int NOT NULL,
+  `ticket` int NOT NULL,
+  `user` int NOT NULL,
   `body` varchar(256) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -188,7 +194,9 @@ INSERT INTO `ticket_event` (`id`, `ticket`, `user`, `body`, `created_at`, `updat
 (3, 6, 1, 'Ticket created', '2019-06-07 02:07:43', '2019-06-07 02:07:43'),
 (4, 7, 1, 'Ticket created', '2019-06-07 02:11:23', '2019-06-07 02:11:23'),
 (5, 8, 4, 'Ticket created', '2019-06-07 06:51:33', '2019-06-07 06:51:33'),
-(6, 9, 4, 'Ticket created', '2019-06-07 06:52:04', '2019-06-07 06:52:04');
+(6, 9, 4, 'Ticket created', '2019-06-07 06:52:04', '2019-06-07 06:52:04'),
+(7, 10, 1, 'Ticket created', '2023-03-20 06:57:25', '2023-03-20 06:57:25'),
+(8, 11, 1, 'Ticket created', '2023-03-20 11:11:23', '2023-03-20 11:11:23');
 
 -- --------------------------------------------------------
 
@@ -197,10 +205,10 @@ INSERT INTO `ticket_event` (`id`, `ticket`, `user`, `body`, `created_at`, `updat
 --
 
 CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
+  `id` int NOT NULL,
   `name` varchar(150) NOT NULL,
   `email` varchar(150) NOT NULL,
-  `phone` varchar(20) NOT NULL,
+  `room` varchar(10) NOT NULL,
   `password` varchar(256) NOT NULL,
   `role` varchar(20) NOT NULL DEFAULT 'member',
   `avatar` varchar(150) DEFAULT NULL,
@@ -213,10 +221,10 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `phone`, `password`, `role`, `avatar`, `last_password`, `created_at`, `updated_at`) VALUES
-(1, 'John Doe', 'johndoe@helpdesk.com', '9876543210', '$2y$10$PHXjdcPjksokkGryfqK.WePBgiQB30Gw.ytYBHdmGtqtoGtVHtAm.', 'admin', NULL, '$2y$10$PHXjdcPjksokkGryfqK.WePBgiQB30Gw.ytYBHdmGtqtoGtVHtAm.', '2019-05-19 09:01:34', '2019-05-19 09:01:34'),
-(3, 'injamul ', 'johndoe@helpdesk.com', '8822677188', '$2y$10$6N4gbdypYQvRkU2ke9Q1f.Gm4fcGY/PEpv2rSB77wiSLZaOy8kq5i', 'member', NULL, '$2y$10$6N4gbdypYQvRkU2ke9Q1f.Gm4fcGY/PEpv2rSB77wiSLZaOy8kq5i', '2019-05-30 19:14:58', '2019-05-24 07:58:53'),
-(4, 'kangkan', 'kangkan@email.com', '9999999999', '$2y$10$Q0rxoFO4fSrcdp58CO0RNOSDP7znVc9eGY6Z4xjQ8MTLHYhx0TF.6', 'member', NULL, '$2y$10$Q0rxoFO4fSrcdp58CO0RNOSDP7znVc9eGY6Z4xjQ8MTLHYhx0TF.6', '2019-05-30 08:49:22', '2019-05-30 08:49:22');
+INSERT INTO `users` (`id`, `name`, `email`, `room`, `password`, `role`, `avatar`, `last_password`, `created_at`, `updated_at`) VALUES
+(1, 'John Doe', 'johndoe@helpdesk.com', '8888888888', '$2y$10$PHXjdcPjksokkGryfqK.WePBgiQB30Gw.ytYBHdmGtqtoGtVHtAm.', 'admin', NULL, '$2y$10$PHXjdcPjksokkGryfqK.WePBgiQB30Gw.ytYBHdmGtqtoGtVHtAm.', '2023-03-20 07:16:20', '2019-05-19 09:01:34'),
+(3, 'injamul ', 'johndoe@helpdesk.com', '1234567899', '$2y$10$6N4gbdypYQvRkU2ke9Q1f.Gm4fcGY/PEpv2rSB77wiSLZaOy8kq5i', 'member', NULL, '$2y$10$6N4gbdypYQvRkU2ke9Q1f.Gm4fcGY/PEpv2rSB77wiSLZaOy8kq5i', '2023-03-20 07:16:07', '2019-05-24 07:58:53'),
+(4, 'Alex', 'kangkan@email.com', '9999999999', '$2y$10$Q0rxoFO4fSrcdp58CO0RNOSDP7znVc9eGY6Z4xjQ8MTLHYhx0TF.6', 'member', NULL, '$2y$10$Q0rxoFO4fSrcdp58CO0RNOSDP7znVc9eGY6Z4xjQ8MTLHYhx0TF.6', '2023-03-20 06:36:52', '2019-05-30 08:49:22');
 
 --
 -- Indexes for dumped tables
@@ -272,37 +280,45 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `comments`
 --
 ALTER TABLE `comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
 --
 -- AUTO_INCREMENT for table `requester`
 --
 ALTER TABLE `requester`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+
 --
 -- AUTO_INCREMENT for table `team`
 --
 ALTER TABLE `team`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
 --
 -- AUTO_INCREMENT for table `team_member`
 --
 ALTER TABLE `team_member`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
 --
 -- AUTO_INCREMENT for table `ticket`
 --
 ALTER TABLE `ticket`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
 --
 -- AUTO_INCREMENT for table `ticket_event`
 --
 ALTER TABLE `ticket_event`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+COMMIT;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

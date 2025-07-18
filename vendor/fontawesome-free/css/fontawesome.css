@@ -542,7 +542,7 @@ readers do not read off random characters that represent icons */
 .fa-blender:before {
   content: "\f517"; }
 
-.fa-blender-phone:before {
+.fa-blender-room:before {
   content: "\f6b6"; }
 
 .fa-blind:before {
@@ -2033,10 +2033,10 @@ readers do not read off random characters that represent icons */
 .fa-heading:before {
   content: "\f1dc"; }
 
-.fa-headphones:before {
+.fa-headrooms:before {
   content: "\f025"; }
 
-.fa-headphones-alt:before {
+.fa-headrooms-alt:before {
   content: "\f58f"; }
 
 .fa-headset:before {
@@ -2549,16 +2549,16 @@ readers do not read off random characters that represent icons */
 .fa-microchip:before {
   content: "\f2db"; }
 
-.fa-microphone:before {
+.fa-microroom:before {
   content: "\f130"; }
 
-.fa-microphone-alt:before {
+.fa-microroom-alt:before {
   content: "\f3c9"; }
 
-.fa-microphone-alt-slash:before {
+.fa-microroom-alt-slash:before {
   content: "\f539"; }
 
-.fa-microphone-slash:before {
+.fa-microroom-slash:before {
   content: "\f131"; }
 
 .fa-microscope:before {
@@ -2846,16 +2846,16 @@ readers do not read off random characters that represent icons */
 .fa-phoenix-squadron:before {
   content: "\f511"; }
 
-.fa-phone:before {
+.fa-room:before {
   content: "\f095"; }
 
-.fa-phone-slash:before {
+.fa-room-slash:before {
   content: "\f3dd"; }
 
-.fa-phone-square:before {
+.fa-room-square:before {
   content: "\f098"; }
 
-.fa-phone-volume:before {
+.fa-room-volume:before {
   content: "\f2a0"; }
 
 .fa-php:before {

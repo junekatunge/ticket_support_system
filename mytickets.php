@@ -32,37 +32,42 @@ $tickets = Ticket::findByMember($user->id);
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach($tickets as $ticket):?>
-                            <tr>
-                                <td><a
-                                        href="./ticket-details.php?id=<?php echo $ticket->id?>"><?php echo $ticket->title?></a>
-                                </td>
-                                <td><?php echo Requester::find($ticket->requester)->name?></td>
-                                <td><?php echo Team::find($ticket->team)->name;?></td>
-                                <?php $usr =  $ticket->team_member ?>
-                                <?php if($usr == ''): ?>
-                                <td><?php echo $usr ?></td>
-                                <?php endif; ?>
-                                <td><button class="btn btn-danger"><?php echo $ticket->status ?></button></td>
-                                <?php $date = new DateTime($ticket->created_at)?>
-                                <td><?php echo $date->format('d-m-Y H:i:s')?> </td>
-                                <td width="100px">
-                                    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-                                        <div class="btn-group" role="group">
-                                            <button id="btnGroupDrop1" type="button"
-                                                class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown"
-                                                aria-haspopup="true" aria-expanded="false">
-                                                Action
-                                            </button>
-                                            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                                <a class="dropdown-item"
-                                                    href="./ticket-details.php?id=<?php echo $ticket->id?>">View</a>
+                            <?php foreach ($tickets as $ticket) : ?>
+                                <tr>
+                                    <td><a href="./ticket-details.php?id=<?php echo $ticket->id ?>"><?php echo $ticket->title ?></a>
+                                    </td>
+                                    <td><?php echo Requester::find($ticket->requester)->name ?></td>
+                                    <td><?php echo Team::find($ticket->team)->name; ?></td>
+                                    <?php $usr =  $ticket->team_member ?>
+                                    <?php if ($usr == '') : ?>
+                                        <td><?php echo $usr ?></td>
+                                    <?php endif; ?>
+                                    <?php if ($ticket->status == 'solved') : ?>
+                                        <td>
+                                            <button class="btn btn-success"><?php echo $ticket->status ?></button>
+                                        </td>
+                                  
+                                    <?php else : ?>
+                                        <td>
+                                            <button class="btn btn-warning"><?php echo $ticket->status ?></button>
+                                        </td>
+                                    <?php endif; ?>
+                                    <?php $date = new DateTime($ticket->created_at) ?>
+                                    <td><?php echo $date->format('d-m-Y H:i:s') ?> </td>
+                                    <td width="100px">
+                                        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                                            <div class="btn-group" role="group">
+                                                <button id="btnGroupDrop1" type="button" class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    Action
+                                                </button>
+                                                <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                                    <a class="dropdown-item" href="./ticket-details.php?id=<?php echo $ticket->id ?>">View</a>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php endforeach?>
+                                    </td>
+                                </tr>
+                            <?php endforeach ?>
                         </tbody>
                     </table>
                 </div>
@@ -76,7 +81,7 @@ $tickets = Ticket::findByMember($user->id);
     <footer class="sticky-footer">
         <div class="container my-auto">
             <div class="copyright text-center my-auto">
-                <span>Copyright © Your Website 2019</span>
+                <span>Copyright © The National Treasury</span>
             </div>
         </div>
     </footer>
@@ -93,8 +98,7 @@ $tickets = Ticket::findByMember($user->id);
 </a>
 
 <!-- Logout Modal-->
-<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
+<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">

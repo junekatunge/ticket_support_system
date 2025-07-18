@@ -12,9 +12,9 @@
 
     public function __construct($data = null)
     {
-        $this->ticket = $data['ticket-id'];
-        $this->team_member = $data['team-member'];
-        $this->body = $data['body'];
+        $this->ticket = isset($data['ticket-id']) ? $data['ticket-id'] : null;
+        $this->team_member = isset($data['team-member']) ? $data['team-member'] : null ;
+        $this->body = isset($data['body']) ? $data['body'] : null ;
      
         $this->db = Database::getInstance();
         return $this;

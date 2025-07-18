@@ -10,9 +10,9 @@ function isValidEmail($email)
     return filter_var($email, FILTER_VALIDATE_EMAIL);
 }
 
-function isValidPhone($phone)
+function isValidroom($room)
 {
-    return (ctype_digit($phone) && strlen($phone) == 10);
+    return (ctype_digit($room) && strlen($room) == 10);
 }
 
 function dnd($variable)

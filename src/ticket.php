@@ -18,14 +18,15 @@ class Ticket
 
     public $rating = '';
 
+
     private $db = null;
 
     public function __construct($data = null)
     {
-        $this->title = $data['title'];
-        $this->body = $data['body'];
-        $this->requester = $data['requester'];
-        $this->team = $data['team'];
+        $this->title =  isset($data['title']) ? $data['title'] : null;
+        $this->body = isset($data['body']) ? $data['body'] : null;
+        $this->requester = isset($data['requester']) ? $data['requester'] : null;
+        $this->team = isset($data['team']) ? $data['team'] : null;
         $this->team_member = isset($data['team_member']) ? $data['team_member'] : null;
         $this->status = isset($data['status']) ? $data['status'] : 'open';
         $this->priority = isset($data['priority']) ? $data['priority'] : 'low';

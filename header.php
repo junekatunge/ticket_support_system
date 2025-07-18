@@ -1,6 +1,6 @@
 <?php 
 session_start();
-ini_set('display_errors', 1);
+//ini_set('display_errors', 1);
 if(!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false){
     header('Location: ./index.php');
     exit();

@@ -12549,19 +12549,19 @@
 		 *  @example
 		 *    // As an object, extracting different data for the different types
 		 *    // This would be used with a data source such as:
-		 *    //   { "phone": 5552368, "phone_filter": "5552368 555-2368", "phone_display": "555-2368" }
-		 *    // Here the `phone` integer is used for sorting and type detection, while `phone_filter`
+		 *    //   { "room": 5552368, "room_filter": "5552368 555-2368", "room_display": "555-2368" }
+		 *    // Here the `room` integer is used for sorting and type detection, while `room_filter`
 		 *    // (which has both forms) is used for filtering for if a user inputs either format, while
-		 *    // the formatted phone number is the one that is shown in the table.
+		 *    // the formatted room number is the one that is shown in the table.
 		 *    $(document).ready( function() {
 		 *      $('#example').dataTable( {
 		 *        "columnDefs": [ {
 		 *          "targets": [ 0 ],
 		 *          "data": null, // Use the full data source object for the renderer's source
 		 *          "render": {
-		 *            "_": "phone",
-		 *            "filter": "phone_filter",
-		 *            "display": "phone_display"
+		 *            "_": "room",
+		 *            "filter": "room_filter",
+		 *            "display": "room_display"
 		 *          }
 		 *        } ]
 		 *      } );
@@ -14219,7 +14219,7 @@
 			 *
 			 * The type based searching functions can be used to pre-format the
 			 * data to be search on. For example, it can be used to strip HTML
-			 * tags or to de-format telephone numbers for numeric only searching.
+			 * tags or to de-format teleroom numbers for numeric only searching.
 			 *
 			 * Note that is a search is not defined for a column of a given type,
 			 * no search formatting will be performed.

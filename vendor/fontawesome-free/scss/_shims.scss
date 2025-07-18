@@ -418,7 +418,7 @@
 
 .#{$fa-css-prefix}.#{$fa-css-prefix}-mobile:before { content: fa-content($fa-var-mobile-alt); }
 
-.#{$fa-css-prefix}.#{$fa-css-prefix}-mobile-phone:before { content: fa-content($fa-var-mobile-alt); }
+.#{$fa-css-prefix}.#{$fa-css-prefix}-mobile-room:before { content: fa-content($fa-var-mobile-alt); }
 
 .#{$fa-css-prefix}.#{$fa-css-prefix}-circle-o {
   font-family: 'Font Awesome 5 Free';
@@ -1797,7 +1797,7 @@
 }
 .#{$fa-css-prefix}.#{$fa-css-prefix}-question-circle-o:before { content: fa-content($fa-var-question-circle); }
 
-.#{$fa-css-prefix}.#{$fa-css-prefix}-volume-control-phone:before { content: fa-content($fa-var-phone-volume); }
+.#{$fa-css-prefix}.#{$fa-css-prefix}-volume-control-room:before { content: fa-content($fa-var-room-volume); }
 
 .#{$fa-css-prefix}.#{$fa-css-prefix}-asl-interpreting:before { content: fa-content($fa-var-american-sign-language-interpreting); }
 

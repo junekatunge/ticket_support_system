@@ -43,8 +43,8 @@
                             <tr>
                                 <td><a href="./ticket-details.php?id=<?php echo $ticket->id?>"><?php echo $ticket->title?></a></td>
                                 <td><?php echo $requester::find($ticket->requester)->name?></td>
-                                <td><?php echo $team::find($ticket->team)->name;?></td>
-                                <?php $usr =  $user::find($ticket->team_member)->name;  ?>
+                                <td><?php echo $team::find($ticket->team)->name ?? ' ';?></td>
+                                <?php $usr =  $user::find($ticket->team_member)->name ?? ' ';  ?>
                                 <?php if($usr !== ''): ?>
                                 <td><?php echo $usr ?></td>
 <?php endif; ?>
@@ -82,7 +82,7 @@
   <footer class="sticky-footer">
     <div class="container my-auto">
       <div class="copyright text-center my-auto">
-        <span>Copyright © Your Website 2019</span>
+      <span>Copyright © The National Treasury</span>
       </div>
     </div>
   </footer>

@@ -10,8 +10,8 @@ class TeamMember{
 
     public function __construct($data = null) //u have to pass data when obj create,initially null
     {
-        $this->user = $data['id'];
-        $this->team = $data['team-id'];
+        $this->user = isset($data['id']) ? $data['id'] : null ;
+        $this->team = isset($data['team-id']) ? $data['team-id'] : null;
         
         $this->db = Database::getInstance(); //creating singleton obj,because it is static functn
 
@@ -80,7 +80,8 @@ class TeamMember{
 
     public static function getName($id) : string 
     {
-        $sql = "SELECT name FROM users WHERE id = '$id'";
+        $sql = "SELECT * FROM users WHERE id = '$id'";
+        //print_r($sql);die;
         $self = new static;
         $res = $self->db->query($sql);
         return $res->fetch_object()->name;

@@ -5,7 +5,7 @@ class User{
     
     public $name = '';
     public $email = '';
-    public $phone = '';
+    public $room = '';
     public $password = '';
     public $role = '';
     public $avatar = '';
@@ -14,12 +14,12 @@ class User{
 
 
     public function __construct($data = null) {
-        $this->name = $data['name'];
-        $this->email = $data['email'];
-        $this->phone = $data['phone'];
-        $this->password = $data['password'];
-        $this->role = $data['role'];
-        $this->lastPassword = $data['password'];
+        $this->name = isset($data['name']) ?  $data['name'] : null;
+        $this->email = isset($data['email']) ? $data['email'] : null;
+        $this->room = isset($data['room']) ? $data['room'] : null ;
+        $this->password = isset($data['password']) ? $data['password'] : null; 
+        $this->role = isset($data['role']) ? $data['role'] : null ;
+        $this->lastPassword = isset($data['password']) ? $data['password'] : null;
         
         $this->db = Database::getInstance();
 
@@ -27,8 +27,8 @@ class User{
     }
 
     public function save(){
-        $sql = "INSERT INTO  users (name, email,phone, password, role, last_password)
-                VALUES ('$this->name', '$this->email', '$this->phone', '$this->password', '$this->role', '$this->lastPassword')";
+        $sql = "INSERT INTO  users (name, email,room, password, role, last_password)
+                VALUES ('$this->name', '$this->email', '$this->room', '$this->password', '$this->role', '$this->lastPassword')";
                 //print_r($sql);die();
         if($this->db->query($sql) === false) {
             throw new Exception($this->db->error);

@@ -37,7 +37,7 @@
                                 <th>Name</th>
                                 <th>Role</th>
                                 <th>Email</th>
-                                <th>Phone</th>
+                                <th>room</th>
                                 <th>Created at</th>
                                
                             </tr>
@@ -48,7 +48,7 @@
                                 <td><?php echo $user->name ?></td>
                                 <td><?php echo $user->role ?></td>
                                 <td><?php echo $user->email ?></td>
-                                <td><?php echo $user->phone ?></td>
+                                <td><?php echo $user->room ?></td>
                                 <?php $date = new DateTime($user->created_at) ?>
                                 <td><?php echo $date->format('d-m-Y H:i:s') ?></td>
                                 
@@ -67,7 +67,7 @@
   <footer class="sticky-footer">
     <div class="container my-auto">
       <div class="copyright text-center my-auto">
-        <span>Copyright © Your Website 2019</span>
+      <span>Copyright © The National Treasury</span>
       </div>
     </div>
   </footer>

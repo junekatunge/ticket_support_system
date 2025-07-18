@@ -14,7 +14,7 @@
   $users = new User();
   $allusers = $users::findAll();
 
-//  print_r($allusers);die();
+
 
         $err = '';
         $msg = '';

@@ -93,7 +93,7 @@ if (isset($_POST['comment'])) {
                     <div>
                         <?php echo $ticket->displayStatusBadge()?>
                         <small class="text-info ml-2"><?php echo $ticket->title?> <span class="text-muted">
-                                <?php $date = new DateTime($ticket->created_at);?>
+                                <?php $date = new DateTime($ticket->created_at ?? '' );?>
                                 <?php echo $date->format('d-m-Y H:i:s')?>
                             </span></small>
                     </div>
@@ -210,7 +210,7 @@ if (isset($_POST['comment'])) {
     <footer class="sticky-footer">
         <div class="container my-auto">
             <div class="copyright text-center my-auto">
-                <span>Copyright © Your Website 2019</span>
+            <span>Copyright © The National Treasury</span>
             </div>
         </div>
     </footer>

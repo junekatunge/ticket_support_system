@@ -12,7 +12,7 @@
 
     $name = $_POST['name'];
     $email = $_POST['email'];
-    $phone = $_POST['phone'];
+    $room = $_POST['room'];
     $password = $_POST['password'];
     $confirm_pass = $_POST['confirm-password'];
 
@@ -23,11 +23,11 @@
        $err = "please enter email";
    }else if(!isValidEmail($email) ) {
        $err = "please enter a valid email";
-   } else if(strlen($phone) < 1 ) {
-     $err = "please enter phone no";
+   } else if(strlen($room) < 1 ) {
+     $err = "please enter room no";
 
-   } else if(!isValidPhone($phone)){
-       $err = "please enter a valid phone no";
+   } else if(!isValidroom($room)){
+       $err = "please enter a valid room no";
    } else if(strlen($password) < 1){
        $err = "please enter a password";
    }else if(strlen($password) < 8 ) {
@@ -42,7 +42,7 @@
 
             'name' => $name,
             'email' => $email,
-            'phone' => $phone,
+            'room' => $room,
             'password' => password_hash($password, PASSWORD_DEFAULT),
             'role' => 'member',
             'last_password' => password_hash($password, PASSWORD_DEFAULT)
@@ -98,9 +98,9 @@
                         </div>
                     </div>
                     <div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
-                        <label for="email" class="col-sm-12 col-lg-2 col-md-2 col-form-label">Phone</label>
+                        <label for="email" class="col-sm-12 col-lg-2 col-md-2 col-form-label">room</label>
                         <div class="col-sm-8">
-                            <input type="text" name="phone" class="form-control" id="" placeholder="Enter phone number">
+                            <input type="text" name="room" class="form-control" id="" placeholder="Enter room number">
                         </div>
                     </div>
                  
@@ -135,7 +135,7 @@
     <footer class="sticky-footer">
         <div class="container my-auto">
             <div class="copyright text-center my-auto">
-                <span>Copyright © Your Website 2019</span>
+            <span>Copyright © The National Treasury</span>
             </div>
         </div>
     </footer>

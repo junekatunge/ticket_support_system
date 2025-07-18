@@ -45,7 +45,7 @@
                                 <td><a href="./ticket-details.php?id=<?php echo $ticket->id?>"><?php echo $ticket->title?></a></td>
                                 <td><?php echo $requester::find($ticket->requester)->name?></td>
                                 <td><?php echo $team::find($ticket->team)->name;?></td>
-                                <?php $usr =  $user::find($ticket->team_member)->name; ?>
+                                <?php $usr =  $user::find($ticket->team_member)->name ?? ' '; ; ?>
                                 <?php if($usr !== ''): ?>
                                 <td><?php echo $usr ?></td>
 <?php endif; ?>
