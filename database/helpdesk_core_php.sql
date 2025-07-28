@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.2
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Apr 07, 2023 at 10:04 AM
--- Server version: 8.0.29-0ubuntu0.20.04.3
--- PHP Version: 7.4.3
+-- Generation Time: Jul 28, 2025 at 07:52 AM
+-- Server version: 10.4.28-MariaDB
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,14 +28,14 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `comments` (
-  `id` int NOT NULL,
-  `ticket` int NOT NULL,
-  `team_member` int NOT NULL,
-  `private` int NOT NULL DEFAULT '0',
+  `id` int(11) NOT NULL,
+  `ticket` int(11) NOT NULL,
+  `team_member` int(11) NOT NULL,
+  `private` int(11) NOT NULL DEFAULT 0,
   `body` varchar(256) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `comments`
@@ -55,19 +55,19 @@ INSERT INTO `comments` (`id`, `ticket`, `team_member`, `private`, `body`, `creat
 --
 
 CREATE TABLE `requester` (
-  `id` int NOT NULL,
+  `id` int(11) NOT NULL,
   `name` varchar(150) NOT NULL,
   `email` varchar(150) NOT NULL,
-  `room` varchar(10) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `phone` varchar(20) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `requester`
 --
 
-INSERT INTO `requester` (`id`, `name`, `email`, `room`, `created_at`, `updated_at`) VALUES
+INSERT INTO `requester` (`id`, `name`, `email`, `phone`, `created_at`, `updated_at`) VALUES
 (31, 'mofiqul', 'example@email.com', '9876543210', '2019-05-19 13:24:08', '2019-05-19 13:24:08'),
 (32, 'mofiqul', 'example@email.com', '9876543210', '2019-05-19 13:45:22', '2019-05-19 13:45:22'),
 (33, 'mofiqul', 'example@email.com', '9876543210', '2019-05-19 13:46:01', '2019-05-19 13:46:01'),
@@ -92,11 +92,11 @@ INSERT INTO `requester` (`id`, `name`, `email`, `room`, `created_at`, `updated_a
 --
 
 CREATE TABLE `team` (
-  `id` int NOT NULL,
+  `id` int(11) NOT NULL,
   `name` varchar(150) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `team`
@@ -114,12 +114,12 @@ INSERT INTO `team` (`id`, `name`, `created_at`, `updated_at`) VALUES
 --
 
 CREATE TABLE `team_member` (
-  `id` int NOT NULL,
-  `user` int NOT NULL,
-  `team` int NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `id` int(11) NOT NULL,
+  `user` int(11) NOT NULL,
+  `team` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `team_member`
@@ -140,34 +140,40 @@ INSERT INTO `team_member` (`id`, `user`, `team`, `created_at`, `updated_at`) VAL
 --
 
 CREATE TABLE `ticket` (
-  `id` int NOT NULL,
+  `id` int(11) NOT NULL,
   `title` varchar(150) NOT NULL,
   `body` text NOT NULL,
-  `requester` int NOT NULL,
-  `team` int DEFAULT NULL,
+  `requester` int(11) NOT NULL,
+  `team` int(11) DEFAULT NULL,
   `team_member` varchar(11) DEFAULT NULL,
   `status` varchar(20) NOT NULL DEFAULT 'open',
   `priority` varchar(20) NOT NULL DEFAULT 'low',
-  `rating` int NOT NULL DEFAULT '0',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `rating` int(11) NOT NULL DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` varchar(50) DEFAULT NULL,
-  `deleted_at` varchar(50) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `deleted_at` varchar(50) DEFAULT NULL,
+  `building` varchar(100) DEFAULT NULL,
+  `department` varchar(100) DEFAULT NULL,
+  `room` varchar(20) DEFAULT NULL,
+  `category` enum('hardware','software','network') DEFAULT NULL,
+  `additional_info` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `ticket`
 --
 
-INSERT INTO `ticket` (`id`, `title`, `body`, `requester`, `team`, `team_member`, `status`, `priority`, `rating`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 'subject', 'thi ', 36, 2, '3', 'closed', 'low', 0, '2019-05-19 13:48:31', NULL, NULL),
-(2, 'subject', 'thi ', 37, 2, '1', 'solved', 'low', 0, '2019-05-19 13:48:37', NULL, NULL),
-(4, 'test', 'this is a comment', 39, 2, '4', 'open', 'low', 0, '2019-05-23 17:18:25', NULL, NULL),
-(5, 'test', 'hfg', 40, 1, '1', 'pending', 'high', 0, '2019-05-30 13:55:17', NULL, NULL),
-(6, 'abcd', 'no comment', 41, 3, '4', 'open', 'low', 0, '2019-06-07 02:07:43', NULL, NULL),
-(8, 'abcd', 'abcd', 43, 1, '4', 'open', 'low', 0, '2019-06-07 06:51:33', NULL, NULL),
-(9, 'no subject', 'abcd', 44, 1, '4', 'open', 'high', 0, '2019-06-07 06:52:04', NULL, NULL),
-(10, 'demo subject', 'se', 45, 2, '9', 'closed', 'low', 0, '2023-03-20 06:57:25', NULL, NULL),
-(11, 'demo subject', 'demo comment', 46, 1, '4', 'solved', 'medium', 0, '2023-03-20 11:11:23', NULL, NULL);
+INSERT INTO `ticket` (`id`, `title`, `body`, `requester`, `team`, `team_member`, `status`, `priority`, `rating`, `created_at`, `updated_at`, `deleted_at`, `building`, `department`, `room`, `category`, `additional_info`) VALUES
+(1, 'subject', 'thi ', 36, 2, '3', 'closed', 'low', 0, '2019-05-19 13:48:31', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(2, 'subject', 'thi ', 37, 2, '1', 'solved', 'low', 0, '2019-05-19 13:48:37', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(4, 'test', 'this is a comment', 39, 2, '4', 'open', 'low', 0, '2019-05-23 17:18:25', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(5, 'test', 'hfg', 40, 1, '1', 'pending', 'high', 0, '2019-05-30 13:55:17', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(6, 'abcd', 'no comment', 41, 3, '4', 'open', 'low', 0, '2019-06-07 02:07:43', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(8, 'abcd', 'abcd', 43, 1, '4', 'open', 'low', 0, '2019-06-07 06:51:33', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(9, 'no subject', 'abcd', 44, 1, '4', 'open', 'high', 0, '2019-06-07 06:52:04', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(10, 'demo subject', 'se', 45, 2, '9', 'closed', 'low', 0, '2023-03-20 06:57:25', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(11, 'demo subject', 'demo comment', 46, 1, '4', 'solved', 'medium', 0, '2023-03-20 11:11:23', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(12, 'Test', 'test body', 1, 1, NULL, 'open', 'low', 0, '2025-07-18 09:51:34', NULL, NULL, NULL, NULL, 'A102', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -176,13 +182,13 @@ INSERT INTO `ticket` (`id`, `title`, `body`, `requester`, `team`, `team_member`,
 --
 
 CREATE TABLE `ticket_event` (
-  `id` int NOT NULL,
-  `ticket` int NOT NULL,
-  `user` int NOT NULL,
+  `id` int(11) NOT NULL,
+  `ticket` int(11) NOT NULL,
+  `user` int(11) NOT NULL,
   `body` varchar(256) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `ticket_event`
@@ -205,23 +211,23 @@ INSERT INTO `ticket_event` (`id`, `ticket`, `user`, `body`, `created_at`, `updat
 --
 
 CREATE TABLE `users` (
-  `id` int NOT NULL,
+  `id` int(11) NOT NULL,
   `name` varchar(150) NOT NULL,
   `email` varchar(150) NOT NULL,
-  `room` varchar(10) NOT NULL,
+  `phone` varchar(20) NOT NULL,
   `password` varchar(256) NOT NULL,
   `role` varchar(20) NOT NULL DEFAULT 'member',
   `avatar` varchar(150) DEFAULT NULL,
   `last_password` varchar(256) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `room`, `password`, `role`, `avatar`, `last_password`, `created_at`, `updated_at`) VALUES
+INSERT INTO `users` (`id`, `name`, `email`, `phone`, `password`, `role`, `avatar`, `last_password`, `created_at`, `updated_at`) VALUES
 (1, 'John Doe', 'johndoe@helpdesk.com', '8888888888', '$2y$10$PHXjdcPjksokkGryfqK.WePBgiQB30Gw.ytYBHdmGtqtoGtVHtAm.', 'admin', NULL, '$2y$10$PHXjdcPjksokkGryfqK.WePBgiQB30Gw.ytYBHdmGtqtoGtVHtAm.', '2023-03-20 07:16:20', '2019-05-19 09:01:34'),
 (3, 'injamul ', 'johndoe@helpdesk.com', '1234567899', '$2y$10$6N4gbdypYQvRkU2ke9Q1f.Gm4fcGY/PEpv2rSB77wiSLZaOy8kq5i', 'member', NULL, '$2y$10$6N4gbdypYQvRkU2ke9Q1f.Gm4fcGY/PEpv2rSB77wiSLZaOy8kq5i', '2023-03-20 07:16:07', '2019-05-24 07:58:53'),
 (4, 'Alex', 'kangkan@email.com', '9999999999', '$2y$10$Q0rxoFO4fSrcdp58CO0RNOSDP7znVc9eGY6Z4xjQ8MTLHYhx0TF.6', 'member', NULL, '$2y$10$Q0rxoFO4fSrcdp58CO0RNOSDP7znVc9eGY6Z4xjQ8MTLHYhx0TF.6', '2023-03-20 06:36:52', '2019-05-30 08:49:22');
@@ -280,43 +286,43 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `comments`
 --
 ALTER TABLE `comments`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `requester`
 --
 ALTER TABLE `requester`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
 -- AUTO_INCREMENT for table `team`
 --
 ALTER TABLE `team`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `team_member`
 --
 ALTER TABLE `team_member`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `ticket`
 --
 ALTER TABLE `ticket`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `ticket_event`
 --
 ALTER TABLE `ticket_event`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
