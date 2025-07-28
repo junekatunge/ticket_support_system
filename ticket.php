@@ -1,3 +1,4 @@
+
 <?php
   include './header.php';
   require_once './src/requester.php';
@@ -25,6 +26,11 @@
       $comment = $_POST['comment']; 
       $team = $_POST['team'];
       $priority = $_POST['priority'];
+      $building = $_POST['building'];
+      $department = $_POST['department'];
+      $category = $_POST['category'];
+      $additional_info = $_POST['additional_info'];
+
 
       if(strlen($name) < 1) {
           $err = "Please enter requester name";
@@ -55,8 +61,14 @@
                 'body' => $comment,
                 'requester' => $savedRequester->id,
                 'team' => $team,
-                'priority' => $priority
-            ]); 
+                'priority' => $priority,
+                'building' => $building,
+                'department' => $department,
+                'room' => $room,
+                'category' => $category,
+                'additional_info' => $additional_info
+            ]);
+            
       
             $savedTicket = $ticket->save();
 
@@ -69,8 +81,9 @@
 
             $msg = "Ticket generated successfully";
         } catch(Exception $e){
-            $err = "Failed to generate ticket";
+            $err = "Failed to generate ticket: " . $e->getMessage();
         }
+        
       }
   }
 ?>
@@ -150,6 +163,47 @@
                             </select>
                         </div>
                     </div>
+                    <div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
+    <label class="col-sm-12 col-lg-2 col-md-2 col-form-label">Building</label>
+    <div class="col-sm-8">
+        <input type="text" name="building" class="form-control" placeholder="Enter building name">
+    </div>
+</div>
+
+<div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
+    <label class="col-sm-12 col-lg-2 col-md-2 col-form-label">Department</label>
+    <div class="col-sm-8">
+        <input type="text" name="department" class="form-control" placeholder="Enter department name">
+    </div>
+</div>
+
+<div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
+    <label class="col-sm-12 col-lg-2 col-md-2 col-form-label">Category</label>
+    <div class="col-sm-8">
+        <select name="category" class="form-control">
+            <option value="">--Select--</option>
+            <option value="hardware">Hardware</option>
+            <option value="software">Software</option>
+            <option value="network">Network</option>
+        </select>
+    </div>
+</div>
+
+<div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
+    <label class="col-sm-12 col-lg-2 col-md-2 col-form-label">Additional Info</label>
+    <div class="col-sm-8">
+        <textarea name="additional_info" class="form-control" placeholder="Optional notes or info"></textarea>
+    </div>
+</div>
+<?php if (isset($savedTicket) && $savedTicket->id): ?>
+<div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
+    <label class="col-sm-12 col-lg-2 col-md-2 col-form-label">Ticket ID</label>
+    <div class="col-sm-8">
+        <input type="text" class="form-control" value="<?php echo $savedTicket->id; ?>" readonly>
+    </div>
+</div>
+<?php endif; ?>
+
                     <div class="text-center">
                         <button type="submit" name="submit" class="btn btn-lg btn-primary"> Create</button>
                     </div>
