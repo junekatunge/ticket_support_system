@@ -2,22 +2,26 @@
 
 class Ticket
 {
-    public $id;
-    public $title = '';
-    public $body = '';
-    public $requester = null;
-    public $team = null;
-    public $team_member = null;
-    public $status = '';
-    public $priority = '';
-    public $rating = '';
-    public $building = '';
-    public $department = '';
-    public $room = '';
-    public $category = '';
-    public $additional_info = '';
+    public ?int $id = null;
+    public ?string $title = null;
+    public ?string $body = null;
+    public ?int $requester = null;
+    public ?int $team = null;
+    public ?int $team_member = null;
+    public ?string $status = null;
+    public ?string $priority = null;
+    public ?string $rating = null;
+    public ?string $building = null;
+    public ?string $department = null;
+    public ?string $room = null;
+    public ?string $category = null;
+    public ?string $additional_info = null;
+    public ?string $created_at = null;
+    public ?string $updated_at = null;
+    public ?string $deleted_at = null;
 
-    private $db = null;
+    private mysqli $db;
+
 
     public function __construct($data = null)
     {
@@ -165,11 +169,26 @@ class Ticket
     }
 
     public function populateObject($object): void
-    {
-        foreach ($object as $key => $property) {
-            $this->$key = $property;
+{
+    foreach ($object as $key => $property) {
+        switch ($key) {
+            case 'id':
+            case 'requester':
+            case 'team':
+            case 'team_member':
+                $this->$key = is_numeric($property) ? (int)$property : null;
+                break;
+
+            case 'rating':
+                $this->$key = is_numeric($property) ? (float)$property : null;
+                break;
+
+            default:
+                $this->$key = $property;
         }
     }
+}
+
 
     public function update($id): Ticket
     {

@@ -1,74 +1,78 @@
 <?php
-class Requester{
-    
-    public $id = null;
-    
-    public $name = '';
 
-    public $email = '';
+class Requester
+{
+    public ?int $id = null;
+    public string $name = '';
+    public string $email = '';
+    public ?string $phone = null;
+    public ?string $building = null;
+    public ?string $department = null;
+    public ?string $room = null;
+    public ?string $created_at = null;
+    public ?string $updated_at = null;
 
-    public $room = '';
+    private mysqli $db;
 
-    private $db = null;
-
-
-    public function __construct($data = null) 
+    public function __construct($data = null)
     {
-        $this->name = isset($data['name']) ? $data['name'] :null ;
-        $this->email = isset($data['email']) ? $data['email'] : null ;
-        $this->room = isset($data['room']) ? $data['room'] : null ;
-        
         $this->db = Database::getInstance();
 
-        return $this;
+        if ($data) {
+            $this->name = $data['name'] ?? '';
+            $this->email = $data['email'] ?? '';
+            $this->phone = $data['phone'] ?? null;
+            $this->building = $data['building'] ?? null;
+            $this->department = $data['department'] ?? null;
+            $this->room = $data['room'] ?? null;
+        }
     }
 
-    public function save() : Requester
+    public function save(): Requester
     {
-        $sql = "INSERT INTO requester (name, email, room)
-                VALUES ('$this->name', '$this->email', '$this->room');
-        ";
-        if($this->db->query($sql) === false) {
+        $sql = "INSERT INTO requester (name, email, phone, building, department, room)
+                VALUES ('$this->name', '$this->email', '$this->phone', '$this->building', '$this->department', '$this->room')";
+
+        if ($this->db->query($sql) === false) {
             throw new Exception($this->db->error);
         }
+
         $id = $this->db->insert_id;
         return self::find($id);
-
     }
 
-    public static function find($id) : Requester
+    public static function find($id): ?Requester
     {
-        $sql ="SELECT * FROM requester WHERE id = '$id'";
         $self = new static;
+        $sql = "SELECT * FROM requester WHERE id = '$id'";
         $res = $self->db->query($sql);
-        if($res->num_rows < 1) return false;
+        
+        if (!$res || $res->num_rows < 1) {
+            return null; // Instead of throwing an exception
+        }
+
         $self->populateObject($res->fetch_object());
         return $self;
     }
 
-    public static function findAll() :array
+
+    public static function findAll(): array
     {
         $sql = "SELECT * FROM requester ORDER BY id DESC";
         $requesters = [];
         $self = new static;
         $res = $self->db->query($sql);
-        
-        if($res->num_rows < 1) return new static;
 
-        while($row = $res->fetch_object()){
+        while ($row = $res->fetch_object()) {
             $requester = new static;
             $requester->populateObject($row);
             $requesters[] = $requester;
         }
 
         return $requesters;
-    } 
+    }
 
-    /**
-     * @param array [$column => $value] Takes an array as key value pair
-     * @return  array Array of requester
-     */ 
-    public static function findByColumn($data) :array
+    public static function findByColumn($data): array
     {
         $field = key($data);
         $value = $data[$field];
@@ -77,30 +81,29 @@ class Requester{
         $requesters = [];
         $self = new static;
         $res = $self->db->query($sql);
-        
-        if($res->num_rows < 1) return [];
 
-        while($row = $res->fetch_object()){
+        while ($row = $res->fetch_object()) {
             $requester = new static;
             $requester->populateObject($row);
             $requesters[] = $requester;
         }
 
         return $requesters;
-    } 
+    }
 
-    public static function delete($id) : bool 
+    public static function delete($id): bool
     {
-        $sql = "DELETE FROM requester WHERE id = '$id";
+        $sql = "DELETE FROM requester WHERE id = '$id'";
         $self = new static;
         return $self->db->query($sql);
     }
 
-    public function populateObject($object) : void
+    public function populateObject($object): void
     {
-
-        foreach($object as $key => $property){
-            $this->$key = $property;
+        foreach ($object as $key => $value) {
+            if (property_exists($this, $key)) {
+                $this->$key = $value;
+            }
         }
-    }    
+    }
 }

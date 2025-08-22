@@ -33,10 +33,13 @@
         try {
 
             $team_mem = new TeamMember([
-                'id' => $user,
-                'team-id' => $teamid
+                'user' => $_POST['id'],
+                'team_id' => $_GET['team-id']
+              ]);
               
-            ]); 
+            
+            
+            
       
            
 
@@ -45,10 +48,9 @@
           $msg = "Member Added successfully";
             
         } catch (Exception $e) {
-
-            $err = "Failed to Add member";
-            
+            $err = "Failed to Add member: " . $e->getMessage();
         }
+        
  }
 }
 

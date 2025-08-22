@@ -8,29 +8,34 @@ class TeamMember{
     public $team = '';
 
 
-    public function __construct($data = null) //u have to pass data when obj create,initially null
-    {
-        $this->user = isset($data['id']) ? $data['id'] : null ;
-        $this->team = isset($data['team-id']) ? $data['team-id'] : null;
-        
-        $this->db = Database::getInstance(); //creating singleton obj,because it is static functn
+    public function __construct($data = null)
+{
+    $this->user = $data['user'] ?? null;
+    $this->team = $data['team_id'] ?? null;
+    $this->db = Database::getInstance();
+}
 
-        return $this;
-    }
 
      //this function returns Teammember obj
-    public function save() : TeamMember
-    {
-        $sql = "INSERT INTO team_member (user, team)
-                VALUES ('$this->user', '$this->team')";
-               // print_r($sql);die();
-        if($this->db->query($sql) === false) {
-            throw new Exception($this->db->error);
-        }
-        $id = $this->db->insert_id; //store last id in var,
-        return self::find($id); //returns obj
+     public function save(): TeamMember
+     {
+        $stmt = $this->db->prepare("INSERT INTO team_member (`user`, `team_id`) VALUES (?, ?)");
 
-    }
+         if (!$stmt) {
+             throw new Exception("Prepare failed: " . $this->db->error);
+         }
+     
+         $stmt->bind_param("ii", $this->user, $this->team);
+         if (!$stmt->execute()) {
+             throw new Exception("Execute failed: " . $stmt->error);
+         }
+     
+         $id = $this->db->insert_id;
+         $stmt->close();
+     
+         return self::find($id);
+     }
+     
 
     public static function find($id) : TeamMember
     {
@@ -44,7 +49,7 @@ class TeamMember{
 
     public static function findByTeam($id) : array
     {
-        $sql = "SELECT * FROM team_member WHERE team = '$id' ORDER BY id DESC";
+        $sql = "SELECT * FROM team_member WHERE team_id = '$id' ORDER BY id DESC";
         $members = [];
         $self = new static;
         $res = $self->db->query($sql);

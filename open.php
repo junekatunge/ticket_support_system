@@ -1,97 +1,115 @@
 <?php
-    include './header.php';
-    require_once './src/ticket.php';
-    require_once './src/requester.php';
-    require_once './src/team.php';
-    require_once './src/user.php';
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-    $ticket = new Ticket();
+require_once __DIR__ . '/src/database.php';
+require_once __DIR__ . '/header.php';
+require_once __DIR__ . '/src/ticket.php';
+require_once __DIR__ . '/src/requester.php';
+require_once __DIR__ . '/src/team.php';
+require_once __DIR__ . '/src/user.php';
 
-    $allTicket = $ticket::findByStatus('open');
+$ticket = new Ticket();
+$allTicket = Ticket::findByStatus('open');
 
-    $requester = new Requester();
-    $team = new Team();
-    $user = new User();
-
+$requester = new Requester();
+$team = new Team();
+$user = new User();
 ?>
-<div id="content-wrapper">
 
+<div id="content-wrapper">
   <div class="container-fluid">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item">
-        <a href="#">Dashboard</a>
-      </li>
-      <li class="breadcrumb-item active">Overview</li>
+      <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+      <li class="breadcrumb-item active">Open Tickets</li>
     </ol>
+
     <div class="card mb-3">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-sm" id="dataTable" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th>Subject</th>
-                                <th>Requester</th>
-                                <th>Team</th>
-                                <th>Agent</th>
-                                <th>status</th>
-                                <th>Created At</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach($allTicket as $ticket):?>
-                            <tr>
-                                <td><a href="./ticket-details.php?id=<?php echo $ticket->id?>"><?php echo $ticket->title?></a></td>
-                                <td><?php echo $requester::find($ticket->requester)->name?></td>
-                                <td><?php echo $team::find($ticket->team)->name ?? ' ';?></td>
-                                <?php $usr =  $user::find($ticket->team_member)->name ?? ' ';  ?>
-                                <?php if($usr !== ''): ?>
-                                <td><?php echo $usr ?></td>
-<?php endif; ?>
-                                <td><button class= "btn btn-danger"><?php echo $ticket->status ?></button></td>
-                                <?php $date = new DateTime($ticket->created_at)?>
-                                <td><?php echo $date->format('d-m-Y H:i:s')?> </td>
-                                <td width="100px">
-                                    <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-                                        <div class="btn-group" role="group">
-                                            <button id="btnGroupDrop1" type="button"
-                                                class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown"
-                                                aria-haspopup="true" aria-expanded="false">
-                                                Action
-                                            </button>
-                                            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                                <a class="dropdown-item" href="#">View</a>
-                                                <a class="dropdown-item" href="#">Update</a>
-                                                <a class="dropdown-item" href="#">Delete</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php endforeach?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm" id="dataTable" width="100%" cellspacing="0">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Requester</th>
+                <th>Team</th>
+                <th>Agent</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($allTicket as $ticket): ?>
+              <tr>
+                <td>
+                  <a href="./ticket-details.php?id=<?= htmlspecialchars($ticket->id) ?>">
+                    <?= htmlspecialchars($ticket->title) ?>
+                  </a>
+                </td>
+
+                <td>
+                  <?= htmlspecialchars(($requester::find($ticket->requester)->name ?? '—')) ?>
+                </td>
+
+                <td>
+                  <?= htmlspecialchars(($team::find($ticket->team)->name ?? '—')) ?>
+                </td>
+
+                <td>
+  <?php
+    $agent = $ticket->team_member ? $user::find((int)$ticket->team_member) : null;
+    echo htmlspecialchars($agent->name ?? '—');
+  ?>
+</td>
+
+
+                <td>
+                  <button class="btn btn-danger"><?= htmlspecialchars($ticket->status) ?></button>
+                </td>
+
+                <td>
+                  <?php
+                    try {
+                      $date = new DateTime($ticket->created_at);
+                      echo $date->format('d-m-Y H:i:s');
+                    } catch (Exception $e) {
+                      echo '—';
+                    }
+                  ?>
+                </td>
+
+                <td width="100px">
+                  <div class="btn-group" role="group" aria-label="Actions">
+                    <button type="button" class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">Action</button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="#">View</a>
+                      <a class="dropdown-item" href="#">Update</a>
+                      <a class="dropdown-item" href="#">Delete</a>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <?php endforeach ?>
+            </tbody>
+          </table>
         </div>
+      </div>
+    </div>
 
   </div>
-  <!-- /.container-fluid -->
 
   <!-- Sticky Footer -->
   <footer class="sticky-footer">
     <div class="container my-auto">
       <div class="copyright text-center my-auto">
-      <span>Copyright © The National Treasury</span>
+        <span>Copyright © The National Treasury</span>
       </div>
     </div>
   </footer>
-
 </div>
-<!-- /.content-wrapper -->
-
-</div>
-<!-- /#wrapper -->
 
 <!-- Scroll to Top Button-->
 <a class="scroll-to-top rounded" href="#page-top">
@@ -104,10 +122,8 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">×</span>
-        </button>
+        <h5 class="modal-title">Ready to Leave?</h5>
+        <button class="close" type="button" data-dismiss="modal"><span>&times;</span></button>
       </div>
       <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
       <div class="modal-footer">
@@ -118,25 +134,16 @@
   </div>
 </div>
 
-<!-- Bootstrap core JavaScript-->
+<!-- JavaScript includes -->
 <script src="vendor/jquery/jquery.min.js"></script>
 <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-<!-- Core plugin JavaScript-->
 <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-
-<!-- Page level plugin JavaScript-->
 <script src="vendor/chart.js/Chart.min.js"></script>
 <script src="vendor/datatables/jquery.dataTables.js"></script>
 <script src="vendor/datatables/dataTables.bootstrap4.js"></script>
-
-<!-- Custom scripts for all pages-->
 <script src="js/sb-admin.min.js"></script>
-
-<!-- Demo scripts for this page-->
 <script src="js/demo/datatables-demo.js"></script>
 <script src="js/demo/chart-area-demo.js"></script>
 
 </body>
-
 </html>

@@ -1,7 +1,6 @@
 <?php 
 session_start();
-//ini_set('display_errors', 1);
-if(!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false){
+if (!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false) {
     header('Location: ./index.php');
     exit();
 }
@@ -13,123 +12,111 @@ $db = Database::getInstance();
 <html lang="en">
 
 <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Helpdesk</title>
 
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="">
-  <meta name="author" content="">
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-  <title>Helpdesk - Dashboard</title>
-
-  <!-- Custom fonts for this template-->
-  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-
-  <!-- Page level plugin CSS-->
-  <link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
-
-  <!-- Custom styles for this template-->
-  <link href="css/sb-admin.css" rel="stylesheet">
-
+  <style>
+    body {
+      background-color: #f4f6f9;
+    }
+    .sidebar {
+      width: 250px;
+      height: 100vh;
+      background-color: #1e293b;
+      padding-top: 20px;
+      position: fixed;
+    }
+    .sidebar .nav-link {
+      color: #cbd5e1;
+      padding: 10px 20px;
+      font-weight: 500;
+    }
+    .sidebar .nav-link.active, .sidebar .nav-link:hover {
+      background-color: #0f172a;
+      color: #fff;
+      border-left: 4px solid #2563eb;
+    }
+    .sidebar .nav-link i {
+      margin-right: 10px;
+    }
+    .sidebar .admin-box {
+      margin-top: auto;
+      padding: 15px 20px;
+      background-color: #0f172a;
+    }
+    .sidebar .admin-box a {
+      color: #3b82f6;
+      font-weight: bold;
+    }
+    .topbar {
+      margin-left: 250px;
+      background-color: #fff;
+      padding: 10px 20px;
+      height: 60px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .content-wrapper {
+      margin-left: 250px;
+      padding: 30px;
+    }
+  </style>
 </head>
 
-<body id="page-top">
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar d-flex flex-column">
+    <div class="px-3 mb-4 text-white fs-4 fw-bold">
+      <i class="fas fa-life-ring me-2"></i>Helpdesk
+    </div>
+    <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : '' ?>" href="dashboard.php">
+      <i class="fas fa-gauge-high"></i> Dashboard
+    </a>
+    <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'open.php' ? 'active' : '' ?>" href="open.php">
+      <i class="fas fa-folder-open"></i> Open
+    </a>
+    <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'solved.php' ? 'active' : '' ?>" href="solved.php">
+      <i class="fas fa-circle-check"></i> Solved
+    </a>
+    <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'closed.php' ? 'active' : '' ?>" href="closed.php">
+      <i class="fas fa-circle-xmark"></i> Closed
+    </a>
+    <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'pending.php' ? 'active' : '' ?>" href="pending.php">
+      <i class="fas fa-clock"></i> Pending
+    </a>
+    <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'unassigned.php' ? 'active' : '' ?>" href="unassigned.php">
+      <i class="fas fa-circle"></i> Unassigned
+    </a>
+    <hr class="border-light mx-3" />
+    <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'mytickets.php' ? 'active' : '' ?>" href="mytickets.php">
+      <i class="fas fa-ticket"></i> My tickets
+    </a>
 
-  <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
+    <?php if ($user->role == 'admin'): ?>
+      <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'team.php' ? 'active' : '' ?>" href="team.php">
+        <i class="fas fa-users"></i> Teams
+      </a>
+      <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'users.php' ? 'active' : '' ?>" href="users.php">
+        <i class="fas fa-user-friends"></i> Users
+      </a>
+    <?php endif; ?>
 
-    <a class="navbar-brand mr-1" href="dashboard.php">Helpdesk</a>
+    <div class="admin-box mt-auto d-flex justify-content-between align-items-center">
+      <a href="#" class="text-decoration-none"><i class="fas fa-user-group"></i> Admin</a>
+      <a href="logout.php" class="btn btn-outline-light btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+  </div>
 
-    <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
-      <i class="fas fa-bars"></i>
-    </button>
+  <!-- Topbar -->
+  <div class="topbar d-flex justify-content-end align-items-center">
+    <div class="text-muted me-3">
+      <i class="fas fa-user-circle me-1"></i> <?= htmlspecialchars($user->name) ?>
+    </div>
+  </div>
 
-    <!-- Navbar Search -->
-    <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
-      <div class="input-group">
-        <input type="hidden" class="form-control" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
-        <div class="input-group-append">
-          <!--<button class="btn btn-primary" type="button">
-            <i class="fas fa-search"></i>
-          </button>-->
-        </div>
-      </div>
-    </form>
-
-    <!-- Navbar -->
-    <ul class="navbar-nav ml-auto ml-md-0">
-      
-      <li class="nav-item dropdown no-arrow">
-        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fas fa-user-circle fa-fw"></i> <?php echo $user->name?>
-        </a>
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-          
-          <a class="dropdown-item" href="./logout.php" data-toggle="modal" data-target="#logoutModal">Logout</a>
-        </div>
-      </li>
-    </ul>
-
-  </nav>
-
-  <div id="wrapper">
-
-    <!-- Sidebar -->
-    <ul class="sidebar navbar-nav">
-      <li class="nav-item active">
-        <a class="nav-link" href="./dashboard.php">
-          <i class="fas fa-fw fa-tachometer-alt"></i>
-          <span> Dashboard</span>
-        </a>
-      </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="./open.php">
-          <i class="fas fa-fw fa-lock-open"></i>
-          <span> Open</span>
-        </a>
-      </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="./solved.php">
-          <i class="fa fa-fw fa-anchor"></i>
-          <span> Solved</span>
-        </a>
-      </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="./closed.php">
-          <i class="fa fa-fw fa-times-circle"></i>
-          <span> Closed</span>
-        </a>
-      </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="./pending.php">
-          <i class="fa fa-fw fa-adjust"></i>
-          <span> Pending</span>
-        </a>
-      </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="./unassigned.php">
-          <i class="fa fa-fw fa-at"></i>
-          <span> Unassigned</span>
-        </a>
-      </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="./mytickets.php">
-          <i class="fa fa-fw fa-award"></i>
-          <span> My tickets</span>
-        </a>
-      </li>
-      <?php if($user->role == 'admin'): ?>
-      <li class="nav-item active">
-        <a class="nav-link" href="./team.php">
-          <i class="fa fa-fw fa-users"></i>
-          <span> Teams</span>
-        </a>
-      </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="./users.php">
-          <i class="fa fa-fw fa-users"></i>
-          <span> Users</span>
-        </a>
-      </li>
-   <?php endif; ?>  
-    </ul>
-    
+  <!-- Begin Page Content -->
+  <div class="content-wrapper">
