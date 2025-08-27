@@ -11,7 +11,7 @@ class User {
     public string $role = '';
     public ?string $avatar = null;
     public ?string $last_password = null; 
-    public ?string $phone = null;
+    // public ?string $phone = null;
     public ?string $created_at = null;
     public ?string $updated_at = null;
 

@@ -4,11 +4,6 @@ class Requester
 {
     public ?int $id = null;
     public string $name = '';
-    public string $email = '';
-    public ?string $phone = null;
-    public ?string $building = null;
-    public ?string $department = null;
-    public ?string $room = null;
     public ?string $created_at = null;
     public ?string $updated_at = null;
 
@@ -20,18 +15,13 @@ class Requester
 
         if ($data) {
             $this->name = $data['name'] ?? '';
-            $this->email = $data['email'] ?? '';
-            $this->phone = $data['phone'] ?? null;
-            $this->building = $data['building'] ?? null;
-            $this->department = $data['department'] ?? null;
-            $this->room = $data['room'] ?? null;
         }
     }
 
     public function save(): Requester
     {
-        $sql = "INSERT INTO requester (name, email, phone, building, department, room)
-                VALUES ('$this->name', '$this->email', '$this->phone', '$this->building', '$this->department', '$this->room')";
+        $sql = "INSERT INTO requester (name)
+                VALUES ('$this->name')";
 
         if ($this->db->query($sql) === false) {
             throw new Exception($this->db->error);

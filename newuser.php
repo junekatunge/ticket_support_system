@@ -31,7 +31,7 @@
    } else if(strlen($password) < 1){
        $err = "please enter a password";
    }else if(strlen($password) < 8 ) {
-       $err = "please should be atleast 8 character";
+       $err = "password should be atleast 8 character";
    } else if($password != $confirm_pass) {
        $err = "password doesnot match";
    } else {
@@ -52,7 +52,8 @@
         $msg = "User Created successfully";
 
     } catch (Exception $e) {
-       $err = "Unable to create user";
+        $err = "Unable to create user: " . $e->getMessage();
+
     }
 
     

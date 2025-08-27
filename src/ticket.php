@@ -90,7 +90,7 @@ class Ticket
 
     public static function findAll(): array
     {
-        $sql = "SELECT * FROM ticket ORDER BY id DESC";
+        $sql = "SELECT * FROM ticket ORDER BY created_at DESC, id DESC";
         $tickets = [];
         $self = new static;
         $res = $self->db->query($sql);
@@ -110,7 +110,7 @@ class Ticket
 
     public static function findByStatus($status): array
     {
-        $sql = "SELECT * FROM ticket WHERE status = '$status' ORDER BY id DESC";
+        $sql = "SELECT * FROM ticket WHERE status = '$status' ORDER BY created_at DESC, id DESC";
         $self = new static;
         $tickets = [];
         $res = $self->db->query($sql);
@@ -216,7 +216,7 @@ class Ticket
 
     public function unassigned()
     {
-        $sql = "SELECT * FROM ticket WHERE team_member = '' ORDER BY id DESC";
+        $sql = "SELECT * FROM ticket WHERE team_member = '' ORDER BY created_at DESC, id DESC";
         $self = new static;
         $tickets = [];
         $res = $self->db->query($sql);
@@ -230,7 +230,23 @@ class Ticket
 
     public static function findByMember($member)
     {
-        $sql = "SELECT * FROM ticket WHERE team_member = '$member' ORDER BY id DESC";
+        $sql = "SELECT * FROM ticket WHERE team_member = '$member' ORDER BY created_at DESC, id DESC";
+        $self = new static;
+        $tickets = [];
+        $res = $self->db->query($sql);
+
+        while ($row = $res->fetch_object()) {
+            $ticket = new static;
+            $ticket->populateObject($row);
+            $tickets[] = $ticket;
+        }
+
+        return $tickets;
+    }
+
+    public static function findByTeam($team_id)
+    {
+        $sql = "SELECT * FROM ticket WHERE team = '$team_id' ORDER BY created_at DESC, id DESC";
         $self = new static;
         $tickets = [];
         $res = $self->db->query($sql);
