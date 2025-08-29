@@ -299,6 +299,9 @@ if (!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false) {
         <p class="mb-0 text-muted">Support requests awaiting action or response</p>
       </div>
       <div class="d-flex gap-2">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTicketModal" style="background: linear-gradient(135deg, #8B4513 0%, #D2B48C 100%); border: none; box-shadow: 0 2px 4px rgba(139, 69, 19, 0.3);">
+          <i class="fas fa-plus me-2"></i>Create New Ticket
+        </button>
         <button class="btn btn-warning">
           <i class="fas fa-bell me-2"></i>Set Reminders
         </button>
@@ -635,6 +638,9 @@ if (!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false) {
   </div>
   </section>
 </div>
+
+<!-- Include Create Ticket Modal -->
+<?php include 'includes/create-ticket-modal.php'; ?>
 
 <!-- Bootstrap 5 and other scripts -->
 <script src="vendor/jquery/jquery.min.js"></script>

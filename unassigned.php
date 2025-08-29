@@ -323,6 +323,7 @@ if (!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false) {
         <p class="mb-0 text-muted">Support requests awaiting assignment to agents</p>
       </div>
       <div class="d-flex gap-2">
+        <?php include './includes/create-ticket-button.php'; ?>
         <button class="btn btn-primary" onclick="toggleBulkMode()">
           <i class="fas fa-tasks me-2"></i>Bulk Assign
         </button>

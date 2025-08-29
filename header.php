@@ -35,11 +35,28 @@ $db = Database::getInstance();
       color: #cbd5e1;
       padding: 10px 20px;
       font-weight: 500;
+      text-decoration: none;
+      display: block;
     }
     .sidebar .nav-link.active, .sidebar .nav-link:hover {
       background-color: #0f172a;
-      color: #fff;
+      color: #fff !important;
       border-left: 4px solid #2563eb;
+      text-decoration: none;
+    }
+    
+    .sidebar .nav-link:hover {
+      color: #fff !important;
+      text-decoration: none;
+    }
+    
+    .sidebar a.nav-link {
+      cursor: pointer;
+      opacity: 1;
+    }
+    
+    .sidebar a.nav-link:visited {
+      color: #cbd5e1;
     }
     .sidebar .nav-link i {
       margin-right: 10px;
@@ -95,6 +112,10 @@ $db = Database::getInstance();
     <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'mytickets.php' ? 'active' : '' ?>" href="mytickets.php">
       <i class="fas fa-ticket"></i> My tickets
     </a>
+    
+    <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'profile.php' ? 'active' : '' ?>" href="profile.php">
+      <i class="fas fa-user-circle"></i> My Profile
+    </a>
 
     <?php if ($user->role == 'admin'): ?>
       <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'team.php' ? 'active' : '' ?>" href="team.php">
@@ -103,11 +124,19 @@ $db = Database::getInstance();
       <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'users.php' ? 'active' : '' ?>" href="users.php">
         <i class="fas fa-user-friends"></i> Users
       </a>
+      <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : '' ?>" href="settings.php">
+        <i class="fas fa-cog"></i> Settings
+      </a>
     <?php endif; ?>
 
+    <hr class="border-light mx-3" />
+    <a class="nav-link <?= basename($_SERVER['PHP_SELF']) == 'signout.php' ? 'active' : '' ?>" href="signout.php">
+      <i class="fas fa-sign-out-alt"></i> Sign Out
+    </a>
+
     <div class="admin-box mt-auto d-flex justify-content-between align-items-center">
-      <a href="#" class="text-decoration-none"><i class="fas fa-user-group"></i> Admin</a>
-      <a href="logout.php" class="btn btn-outline-light btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      <span class="text-light"><i class="fas fa-user-circle"></i> <?= htmlspecialchars($user->name) ?></span>
+      <span class="badge bg-primary"><?= htmlspecialchars(ucfirst($user->role)) ?></span>
     </div>
   </div>
 

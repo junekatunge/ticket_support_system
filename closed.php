@@ -285,6 +285,7 @@ if (!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false) {
         <p class="mb-0 text-muted">Archived and completed support requests</p>
       </div>
       <div class="d-flex gap-2">
+        <?php include './includes/create-ticket-button.php'; ?>
         <button class="btn btn-outline-secondary" onclick="window.print()">
           <i class="fas fa-archive me-2"></i>Archive Report
         </button>

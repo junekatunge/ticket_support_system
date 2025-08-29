@@ -207,7 +207,19 @@ if (!isset($teams) || empty($teams)) {
 }
 
 .form-floating-custom .form-control:focus, .form-floating-custom .form-select:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+  border-color: #D2B48C;
+  box-shadow: 0 0 0 0.2rem rgba(210, 180, 140, 0.25);
+}
+
+.fa-user-circle.text-primary, .fa-ticket-alt.text-primary {
+  color: #8B4513 !important;
+}
+
+.fa-arrow-left {
+  color: #1e3a5f;
+}
+
+.fa-paper-plane {
+  color: white;
 }
 </style>

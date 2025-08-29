@@ -3,14 +3,15 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+require_once './src/team.php';
+require_once './src/ticket.php';
+require_once './src/user.php';
+
 session_start();
 if (!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false) {
     header('Location: ./index.php');
     exit();
 }
-require_once './src/team.php';
-require_once './src/ticket.php';
-require_once './src/user.php';
 
 $teams = Team::findAll();
 
@@ -60,15 +61,30 @@ $topPerformer = !empty($teamMetrics) ? array_reduce($teamMetrics, function($carr
 ?>
 
 <style>
+  :root {
+    --treasury-navy: #1e3a5f;
+    --treasury-gold: #c9a96e;
+    --treasury-green: #2d5a3d;
+    --treasury-blue: #4a90a4;
+    --treasury-amber: #b8860b;
+    --treasury-burgundy: #722f37;
+    --treasury-dark: #2c3e50;
+    --treasury-light: #f8f9fc;
+    --treasury-brown: #8B4513;
+    --treasury-tan: #D2B48C;
+    --kenya-red: #922529;
+    --kenya-green: #008C51;
+  }
+
   .stat-card {
     border-radius: 12px;
     border: none;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 8px rgba(30, 58, 95, 0.08);
     transition: transform 0.2s, box-shadow 0.2s;
   }
   .stat-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(30, 58, 95, 0.15);
   }
   .stat-icon {
     width: 50px;
@@ -82,16 +98,16 @@ $topPerformer = !empty($teamMetrics) ? array_reduce($teamMetrics, function($carr
   .team-card {
     border-radius: 10px;
     border: none;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 8px rgba(30, 58, 95, 0.08);
     transition: transform 0.2s, box-shadow 0.2s;
     height: 100%;
   }
   .team-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 25px rgba(30, 58, 95, 0.15);
   }
   .team-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--treasury-brown) 0%, var(--treasury-tan) 100%);
     color: white;
     border-radius: 10px 10px 0 0;
     padding: 1rem;
@@ -116,13 +132,13 @@ $topPerformer = !empty($teamMetrics) ? array_reduce($teamMetrics, function($carr
     margin-right: 8px;
   }
   .workload-light {
-    background-color: #10b981;
+    background-color: var(--treasury-green);
   }
   .workload-moderate {
-    background-color: #f59e0b;
+    background-color: var(--treasury-amber);
   }
   .workload-heavy {
-    background-color: #ef4444;
+    background-color: var(--treasury-burgundy);
   }
   .search-box {
     border-radius: 8px;
@@ -131,8 +147,8 @@ $topPerformer = !empty($teamMetrics) ? array_reduce($teamMetrics, function($carr
   }
   .search-box:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: var(--treasury-tan);
+    box-shadow: 0 0 0 3px rgba(210, 180, 140, 0.1);
   }
   .filter-btn {
     border-radius: 6px;
@@ -143,6 +159,58 @@ $topPerformer = !empty($teamMetrics) ? array_reduce($teamMetrics, function($carr
   .filter-btn:hover {
     transform: translateY(-2px);
   }
+  
+  .btn-outline-primary {
+    color: var(--treasury-brown);
+    border-color: var(--treasury-brown);
+  }
+  
+  .btn-outline-primary:hover, .btn-outline-primary.active {
+    background-color: var(--treasury-brown);
+    border-color: var(--treasury-brown);
+    color: white;
+  }
+  
+  .btn-outline-success {
+    color: var(--treasury-green);
+    border-color: var(--treasury-green);
+  }
+  
+  .btn-outline-success:hover {
+    background-color: var(--treasury-green);
+    border-color: var(--treasury-green);
+  }
+  
+  .btn-outline-warning {
+    color: var(--treasury-amber);
+    border-color: var(--treasury-amber);
+  }
+  
+  .btn-outline-warning:hover {
+    background-color: var(--treasury-amber);
+    border-color: var(--treasury-amber);
+  }
+  
+  .btn-outline-info {
+    color: var(--treasury-blue);
+    border-color: var(--treasury-blue);
+  }
+  
+  .btn-outline-info:hover {
+    background-color: var(--treasury-blue);
+    border-color: var(--treasury-blue);
+  }
+  
+  .btn-outline-secondary {
+    color: var(--treasury-tan);
+    border-color: var(--treasury-tan);
+  }
+  
+  .btn-outline-secondary:hover {
+    background-color: var(--treasury-tan);
+    border-color: var(--treasury-tan);
+    color: var(--treasury-brown);
+  }
   .team-badge {
     padding: 4px 8px;
     border-radius: 15px;
@@ -150,20 +218,20 @@ $topPerformer = !empty($teamMetrics) ? array_reduce($teamMetrics, function($carr
     font-weight: 600;
   }
   .badge-small {
-    background-color: #fef3c7;
-    color: #92400e;
+    background-color: #fff8dc;
+    color: var(--treasury-amber);
   }
   .badge-medium {
-    background-color: #dbeafe;
-    color: #1e40af;
+    background-color: rgba(74, 144, 164, 0.1);
+    color: var(--treasury-blue);
   }
   .badge-large {
-    background-color: #dcfce7;
-    color: #166534;
+    background-color: rgba(45, 90, 61, 0.1);
+    color: var(--treasury-green);
   }
   .create-team-card {
-    border: 2px dashed #d1d5db;
-    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    border: 2px dashed var(--treasury-tan);
+    background: linear-gradient(135deg, var(--treasury-light) 0%, #f5f7fa 100%);
     border-radius: 10px;
     transition: all 0.2s;
     cursor: pointer;
@@ -171,8 +239,8 @@ $topPerformer = !empty($teamMetrics) ? array_reduce($teamMetrics, function($carr
     min-height: 200px;
   }
   .create-team-card:hover {
-    border-color: #667eea;
-    background: linear-gradient(135deg, #ede9fe 0%, #e0e7ff 100%);
+    border-color: var(--treasury-brown);
+    background: linear-gradient(135deg, rgba(210, 180, 140, 0.1) 0%, rgba(139, 69, 19, 0.05) 100%);
     transform: translateY(-2px);
   }
   .team-actions {
@@ -191,11 +259,11 @@ $topPerformer = !empty($teamMetrics) ? array_reduce($teamMetrics, function($carr
   
   /* Footer/Copyright Styling */
   .footer-section {
-    background: #f8f9fa;
+    background: var(--treasury-light);
     border-radius: 8px;
     padding: 1rem;
     margin-top: 2rem;
-    border: 1px solid #e9ecef;
+    border: 1px solid rgba(201, 169, 110, 0.3);
   }
   
   .footer-content {
@@ -222,7 +290,7 @@ $topPerformer = !empty($teamMetrics) ? array_reduce($teamMetrics, function($carr
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
   <style>
-    :root { --bg-soft: #f8fafc; }
+    :root { --bg-soft: var(--treasury-light); }
     html, body { height: 100%; }
     body { background: var(--bg-soft); }
     .app-shell { display: flex; height: 100vh; }
@@ -385,7 +453,7 @@ $topPerformer = !empty($teamMetrics) ? array_reduce($teamMetrics, function($carr
       <div class="col-xl-3 col-lg-4 col-md-6 mb-3">
         <div class="create-team-card d-flex flex-column align-items-center justify-content-center" onclick="window.location.href='newteam.php'">
           <div class="text-center">
-            <i class="fas fa-plus-circle" style="font-size: 2.5rem; color: #9ca3af; margin-bottom: 0.75rem;"></i>
+            <i class="fas fa-plus-circle" style="font-size: 2.5rem; color: var(--treasury-tan); margin-bottom: 0.75rem;"></i>
             <h6 class="text-muted mb-1">Create New Team</h6>
             <p class="text-muted" style="font-size: 0.75rem;">Build a new support team</p>
           </div>
@@ -607,6 +675,151 @@ $(document).ready(function() {
             }, 1500);
         });
     }, 1000);
+    
+    // Team Analytics button functionality
+    $('.btn-info').on('click', function(e) {
+        if ($(this).text().trim().includes('Team Analytics')) {
+            e.preventDefault();
+            
+            // Create analytics modal content
+            const analyticsData = {
+                totalTeams: <?= $totalTeams ?>,
+                totalMembers: <?= $totalMembers ?>,
+                avgTeamSize: <?= $avgTeamSize ?>,
+                activeTeams: <?= $activeTeams ?>
+            };
+            
+            const modalContent = `
+                <div class="modal fade" id="teamAnalyticsModal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-chart-bar me-2"></i>Team Analytics Dashboard
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row mb-4">
+                                    <div class="col-md-3">
+                                        <div class="text-center p-3 bg-primary bg-opacity-10 rounded">
+                                            <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                                            <h4>${analyticsData.totalTeams}</h4>
+                                            <small class="text-muted">Total Teams</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center p-3 bg-success bg-opacity-10 rounded">
+                                            <i class="fas fa-user-friends fa-2x text-success mb-2"></i>
+                                            <h4>${analyticsData.totalMembers}</h4>
+                                            <small class="text-muted">Total Members</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center p-3 bg-info bg-opacity-10 rounded">
+                                            <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                                            <h4>${analyticsData.avgTeamSize}</h4>
+                                            <small class="text-muted">Avg Team Size</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center p-3 bg-warning bg-opacity-10 rounded">
+                                            <i class="fas fa-check-circle fa-2x text-warning mb-2"></i>
+                                            <h4>${analyticsData.activeTeams}</h4>
+                                            <small class="text-muted">Active Teams</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h6>Team Performance Overview</h6>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Team</th>
+                                                        <th>Members</th>
+                                                        <th>Status</th>
+                                                        <th>Performance</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="analyticsTableBody">
+                                                    <!-- Team data will be populated here -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary">
+                                    <i class="fas fa-download me-2"></i>Export Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal and add new one
+            $('#teamAnalyticsModal').remove();
+            $('body').append(modalContent);
+            
+            // Populate analytics table
+            $('.team-item').each(function() {
+                const teamName = $(this).find('.team-card h6').text();
+                const memberCount = $(this).data('team-size');
+                const status = memberCount > 0 ? 'Active' : 'Inactive';
+                const performance = Math.floor(Math.random() * 100); // Random performance for demo
+                
+                $('#analyticsTableBody').append(`
+                    <tr>
+                        <td>${teamName}</td>
+                        <td><span class="badge bg-light text-dark">${memberCount}</span></td>
+                        <td><span class="badge bg-${status === 'Active' ? 'success' : 'secondary'}">${status}</span></td>
+                        <td>
+                            <div class="progress" style="height: 15px;">
+                                <div class="progress-bar" style="width: ${performance}%">${performance}%</div>
+                            </div>
+                        </td>
+                    </tr>
+                `);
+            });
+            
+            // Show modal
+            $('#teamAnalyticsModal').modal('show');
+        }
+    });
+    
+    // Team dropdown actions functionality
+    $(document).on('click', '.dropdown-item', function(e) {
+        const href = $(this).attr('href');
+        const text = $(this).text().trim();
+        
+        if (href === '#') {
+            e.preventDefault();
+            
+            if (text.includes('View Analytics')) {
+                // Individual team analytics
+                const teamCard = $(this).closest('.team-item');
+                const teamName = teamCard.find('.team-card h6').text();
+                const memberCount = teamCard.data('team-size');
+                
+                alert(`Analytics for ${teamName}:\n\nMembers: ${memberCount}\nStatus: ${memberCount > 0 ? 'Active' : 'Inactive'}\nPerformance: ${Math.floor(Math.random() * 100)}%\n\n(Detailed analytics would show here in full implementation)`);
+            }
+        }
+    });
+    
+    // Enhanced team card interactions
+    $('.team-card').on('mouseenter', function() {
+        $(this).css('transform', 'translateY(-2px)');
+        $(this).css('box-shadow', '0 4px 15px rgba(0,0,0,0.1)');
+    }).on('mouseleave', function() {
+        $(this).css('transform', 'translateY(0)');
+        $(this).css('box-shadow', '0 1px 3px rgba(0,0,0,0.1)');
+    });
     
     // Load create ticket modal functionality
     $.getScript('./includes/create-ticket-modal.js');

@@ -7,9 +7,31 @@ $current_page = basename($_SERVER['PHP_SELF']);
 if (!isset($user) && isset($_SESSION['user'])) {
     $user = $_SESSION['user'];
 }
+
+// Include notification system
+require_once __DIR__ . '/src/database.php';
+require_once __DIR__ . '/src/notification.php';
+
+// Get notification count
+$notificationCount = Notification::getUnreadCount();
 ?>
 
 <style>
+  :root {
+    --treasury-navy: #1e3a5f;
+    --treasury-gold: #c9a96e;
+    --treasury-green: #2d5a3d;
+    --treasury-blue: #4a90a4;
+    --treasury-amber: #b8860b;
+    --treasury-burgundy: #722f37;
+    --treasury-dark: #2c3e50;
+    --treasury-light: #f8f9fc;
+    --treasury-brown: #8B4513;
+    --treasury-tan: #D2B48C;
+    --kenya-red: #922529;
+    --kenya-green: #008C51;
+  }
+
 /* Sticky Navbar Styles */
 .navbar-main {
     position: fixed;
@@ -17,10 +39,10 @@ if (!isset($user) && isset($_SESSION['user'])) {
     left: var(--sidebar-w, 280px);
     right: 0;
     z-index: 1020;
-    background: #ffffff;
+    background: linear-gradient(135deg, var(--treasury-light) 0%, #ffffff 100%);
     height: 60px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-    border-bottom: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(30, 58, 95, 0.15), 0 1px 3px rgba(30, 58, 95, 0.08);
+    border-bottom: 2px solid var(--treasury-gold);
     transition: left 0.3s ease;
 }
 
@@ -39,25 +61,26 @@ if (!isset($user) && isset($_SESSION['user'])) {
     gap: 0.5rem;
     font-weight: 700;
     font-size: 1.1rem;
-    color: #1e293b;
+    color: var(--treasury-navy);
     text-decoration: none;
 }
 
 .navbar-brand:hover {
-    color: #3b82f6;
+    color: var(--treasury-gold);
     text-decoration: none;
 }
 
 .navbar-brand .brand-logo {
     width: 32px;
     height: 32px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--treasury-tan) 0%, var(--treasury-brown) 100%);
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: var(--treasury-light);
     font-size: 14px;
+    box-shadow: 0 2px 4px rgba(210, 180, 140, 0.3);
 }
 
 .navbar-search {
@@ -79,8 +102,8 @@ if (!isset($user) && isset($_SESSION['user'])) {
 
 .search-input:focus {
     background: #ffffff;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: var(--treasury-tan);
+    box-shadow: 0 0 0 3px rgba(210, 180, 140, 0.15);
 }
 
 .search-wrapper {
@@ -112,14 +135,14 @@ if (!isset($user) && isset($_SESSION['user'])) {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #64748b;
+    color: var(--treasury-brown);
     text-decoration: none;
     transition: all 0.2s ease;
 }
 
 .navbar-notifications:hover {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--treasury-tan) 0%, var(--treasury-brown) 100%);
+    color: var(--treasury-light);
     border-color: transparent;
     text-decoration: none;
 }
@@ -148,27 +171,28 @@ if (!isset($user) && isset($_SESSION['user'])) {
     border-radius: 12px;
     transition: all 0.2s ease;
     text-decoration: none;
-    color: #1e293b;
+    color: var(--treasury-navy);
     position: relative;
 }
 
 .navbar-user:hover {
-    background: #f1f5f9;
-    color: #1e293b;
+    background: rgba(210, 180, 140, 0.1);
+    color: var(--treasury-navy);
     text-decoration: none;
 }
 
 .user-avatar {
     width: 36px;
     height: 36px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--treasury-tan) 0%, var(--treasury-brown) 100%);
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: var(--treasury-light);
     font-weight: 600;
     font-size: 14px;
+    box-shadow: 0 2px 4px rgba(210, 180, 140, 0.3);
 }
 
 .user-info {
@@ -184,7 +208,7 @@ if (!isset($user) && isset($_SESSION['user'])) {
 
 .user-role {
     font-size: 0.75rem;
-    color: #64748b;
+    color: var(--treasury-blue);
     text-transform: capitalize;
 }
 
@@ -204,8 +228,8 @@ if (!isset($user) && isset($_SESSION['user'])) {
 }
 
 .logout-btn:hover {
-    background: #ef4444;
-    border-color: #ef4444;
+    background: var(--treasury-burgundy);
+    border-color: var(--treasury-burgundy);
     color: white;
     text-decoration: none;
 }
@@ -266,6 +290,66 @@ if (!isset($user) && isset($_SESSION['user'])) {
         padding-top: 60px !important;
     }
 }
+
+/* Notification Dropdown Styles */
+.notifications-dropdown {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(30, 58, 95, 0.15);
+}
+
+.notification-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f3f4;
+    transition: background-color 0.2s ease;
+}
+
+.notification-item:hover {
+    background-color: rgba(210, 180, 140, 0.05);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+}
+
+.notification-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--treasury-navy);
+    margin-bottom: 2px;
+}
+
+.notification-subtitle {
+    font-size: 0.8rem;
+    color: var(--treasury-blue);
+    margin-bottom: 2px;
+}
+
+.notification-meta {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.notification-badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
 </style>
 
 <nav class="navbar-main">
@@ -273,9 +357,9 @@ if (!isset($user) && isset($_SESSION['user'])) {
         <!-- Page Title Only -->
         <div class="navbar-brand">
             <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <div style="width: 4px; height: 28px; background: linear-gradient(180deg, #667eea, #764ba2); border-radius: 2px;"></div>
+                <div style="width: 4px; height: 28px; background: linear-gradient(180deg, var(--treasury-tan), var(--treasury-brown)); border-radius: 2px;"></div>
                 <div>
-                    <h5 style="margin: 0; font-size: 1.25rem; font-weight: 700; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.025em;">
+                    <h5 style="margin: 0; font-size: 1.25rem; font-weight: 700; background: linear-gradient(135deg, var(--treasury-brown), var(--treasury-tan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.025em;">
                         <?php 
                         // Determine page name based on current page
                         $page_name = 'ICT Helpdesk';
@@ -289,11 +373,12 @@ if (!isset($user) && isset($_SESSION['user'])) {
                             case 'mytickets.php': $page_name = 'My Tickets'; break;
                             case 'team.php': $page_name = 'Teams'; break;
                             case 'users.php': $page_name = 'Users'; break;
+                            case 'reports.php': $page_name = 'Reports & Analytics'; break;
                         }
                         echo $page_name;
                         ?>
                     </h5>
-                    <p style="margin: 0; font-size: 0.75rem; color: #94a3b8; font-weight: 500;">
+                    <p style="margin: 0; font-size: 0.75rem; color: var(--treasury-blue); font-weight: 500;">
                         <?php echo date('l, F j, Y'); ?>
                     </p>
                 </div>
@@ -306,10 +391,68 @@ if (!isset($user) && isset($_SESSION['user'])) {
         <!-- Actions -->
         <div class="navbar-actions">
             <!-- Notifications -->
-            <a href="#" class="navbar-notifications" title="Notifications">
-                <i class="fas fa-bell"></i>
-                <span class="notification-badge">3</span>
-            </a>
+            <div class="dropdown">
+                <a href="#" class="navbar-notifications" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <?php if ($notificationCount > 0): ?>
+                        <span class="notification-badge"><?= $notificationCount > 99 ? '99+' : $notificationCount ?></span>
+                    <?php endif; ?>
+                </a>
+                
+                <ul class="dropdown-menu dropdown-menu-end notifications-dropdown shadow-lg" style="width: 350px; max-height: 400px; overflow-y: auto;">
+                    <li><h6 class="dropdown-header d-flex justify-content-between align-items-center">
+                        <span>Notifications</span>
+                        <small class="text-muted"><?= $notificationCount ?> unread</small>
+                    </h6></li>
+                    
+                    <?php 
+                    $notifications = Notification::getRecentNotifications();
+                    if (empty($notifications)): 
+                    ?>
+                        <li><div class="dropdown-item-text text-center py-4">
+                            <i class="fas fa-bell-slash text-muted mb-2" style="font-size: 2rem;"></i>
+                            <p class="text-muted mb-0">No new notifications</p>
+                        </div></li>
+                    <?php else: ?>
+                        <?php foreach ($notifications as $notification): ?>
+                            <li>
+                                <a class="dropdown-item notification-item" href="ticket-details.php?id=<?= $notification['id'] ?>">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0 me-3">
+                                            <div class="notification-icon" style="background: <?= Notification::getBadgeColor($notification['notification_type']) ?>;">
+                                                <?php if ($notification['notification_type'] === 'urgent'): ?>
+                                                    <i class="fas fa-exclamation"></i>
+                                                <?php elseif ($notification['notification_type'] === 'high'): ?>
+                                                    <i class="fas fa-arrow-up"></i>
+                                                <?php elseif ($notification['notification_type'] === 'overdue'): ?>
+                                                    <i class="fas fa-clock"></i>
+                                                <?php else: ?>
+                                                    <i class="fas fa-ticket"></i>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="notification-title"><?= htmlspecialchars($notification['notification_message']) ?></div>
+                                            <div class="notification-subtitle">
+                                                #<?= $notification['id'] ?> - <?= htmlspecialchars($notification['subject']) ?>
+                                            </div>
+                                            <div class="notification-meta">
+                                                <?= htmlspecialchars($notification['requester_name'] ?? 'Unknown') ?> • 
+                                                <?= Notification::timeAgo($notification['created_at']) ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                        
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-center text-primary" href="notifications.php">
+                            <i class="fas fa-eye me-1"></i>View All Notifications
+                        </a></li>
+                    <?php endif; ?>
+                </ul>
+            </div>
             
             <!-- User Profile -->
             <div class="dropdown">
@@ -317,19 +460,27 @@ if (!isset($user) && isset($_SESSION['user'])) {
                     <div class="user-avatar">
                         <?php 
                         $initials = 'U';
-                        if (isset($user->name)) {
-                            $names = explode(' ', trim($user->name));
-                            $initials = strtoupper(substr($names[0], 0, 1));
-                            if (count($names) > 1) {
-                                $initials .= strtoupper(substr(end($names), 0, 1));
+                        $userName = 'User';
+                        $userRole = 'member';
+                        
+                        if (isset($user) && is_object($user)) {
+                            $userName = isset($user->name) && $user->name ? $user->name : 'User';
+                            $userRole = isset($user->role) && $user->role ? $user->role : 'member';
+                            
+                            if ($userName && $userName !== 'User') {
+                                $names = explode(' ', trim($userName));
+                                $initials = strtoupper(substr($names[0], 0, 1));
+                                if (count($names) > 1) {
+                                    $initials .= strtoupper(substr(end($names), 0, 1));
+                                }
                             }
                         }
                         echo $initials;
                         ?>
                     </div>
                     <div class="user-info">
-                        <div class="user-name"><?php echo htmlspecialchars($user->name ?? 'User'); ?></div>
-                        <div class="user-role"><?php echo htmlspecialchars($user->role ?? 'member'); ?></div>
+                        <div class="user-name"><?php echo htmlspecialchars($userName); ?></div>
+                        <div class="user-role"><?php echo htmlspecialchars($userRole); ?></div>
                     </div>
                     <i class="fas fa-chevron-down" style="font-size: 12px; color: #94a3b8;"></i>
                 </a>
@@ -350,3 +501,41 @@ if (!isset($user) && isset($_SESSION['user'])) {
         </div>
     </div>
 </nav>
+
+<!-- Initialize Notification System -->
+<script>
+// Simple notification functionality without external dependencies
+document.addEventListener('DOMContentLoaded', function() {
+    // Update notification count every 30 seconds
+    function updateNotificationCount() {
+        fetch('api/get-notification-count.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const badge = document.querySelector('.notification-badge');
+                    const bellIcon = document.querySelector('.navbar-notifications i');
+                    
+                    if (data.count > 0) {
+                        if (badge) {
+                            badge.textContent = data.count > 99 ? '99+' : data.count;
+                        } else if (bellIcon) {
+                            const newBadge = document.createElement('span');
+                            newBadge.className = 'notification-badge';
+                            newBadge.textContent = data.count > 99 ? '99+' : data.count;
+                            bellIcon.parentNode.appendChild(newBadge);
+                        }
+                    } else {
+                        if (badge) {
+                            badge.remove();
+                        }
+                    }
+                }
+            })
+            .catch(error => console.log('Notification update error:', error));
+    }
+    
+    // Update immediately and then every 30 seconds
+    updateNotificationCount();
+    setInterval(updateNotificationCount, 30000);
+});
+</script>

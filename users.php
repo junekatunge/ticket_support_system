@@ -187,6 +187,7 @@ foreach($users as $user) {
           <p class="mb-0 opacity-75">Manage system users and their permissions</p>
         </div>
         <div class="d-flex gap-2">
+          <?php include './includes/create-ticket-button.php'; ?>
           <button class="btn btn-light fw-semibold shadow-sm">
             <i class="fas fa-download me-2"></i>Export Users
           </button>
