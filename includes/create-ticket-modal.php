@@ -112,6 +112,28 @@ if (!isset($teams) || empty($teams)) {
                     </select>
                   </div>
                 </div>
+                <div class="col-12">
+                  <div class="form-floating-custom" style="margin-bottom: 1rem;">
+                    <label for="assignMember" style="font-size: 0.8rem;">👤 Assign to Team Member</label>
+                    <select class="form-select" id="team-member-dropdown" name="team_member" style="padding: 0.65rem; font-size: 0.9rem;">
+                      <option value="">--Optional: Select a team member--</option>
+                      <?php
+                      // Get all users from database
+                      $db = Database::getInstance();
+                      $sql = "SELECT id, name FROM users WHERE name IS NOT NULL AND name != '' ORDER BY name ASC";
+                      $result = $db->query($sql);
+                      if ($result && $result->num_rows > 0) {
+                        while ($row = $result->fetch_assoc()) {
+                          if (!empty($row['name'])) {
+                            echo '<option value="'.$row['id'].'">👤 '.htmlspecialchars($row['name']).'</option>';
+                          }
+                        }
+                      }
+                      ?>
+                    </select>
+                    <small class="text-muted" style="font-size: 0.75rem;">Optional: Assign to a specific team member</small>
+                  </div>
+                </div>
               </div>
             </div>
             
@@ -147,13 +169,29 @@ if (!isset($teams) || empty($teams)) {
 </div>
 
 <style>
+:root {
+  --treasury-navy: #1e3a5f;
+  --treasury-gold: #c9a96e;
+  --treasury-green: #2d5a3d;
+  --treasury-blue: #4a90a4;
+  --treasury-amber: #b8860b;
+  --treasury-burgundy: #722f37;
+  --treasury-dark: #2c3e50;
+  --treasury-light: #f8f9fc;
+  --treasury-brown: #8B4513;
+  --treasury-tan: #D2B48C;
+  --kenya-red: #922529;
+  --kenya-green: #008C51;
+}
+
 /* Modal styles */
 .modal-header-gradient {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, var(--treasury-brown), var(--treasury-dark));
   color: white;
   border: none;
   padding: 2rem 2rem 1.5rem;
   position: relative;
+  box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
 }
 
 .modal-header-gradient::before {
@@ -163,63 +201,96 @@ if (!isset($teams) || empty($teams)) {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
+  background: linear-gradient(135deg, rgba(139, 69, 19, 0.9), rgba(44, 62, 80, 0.9));
   backdrop-filter: blur(10px);
 }
 
 .btn-light-custom {
-  background-color: #e9ecef;
-  color: #495057;
-  border: none;
+  background-color: var(--treasury-light);
+  color: var(--treasury-navy);
+  border: 2px solid var(--treasury-tan);
   font-weight: 500;
   padding: 0.5rem 1rem;
   border-radius: 6px;
+  transition: all 0.3s ease;
 }
 
 .btn-light-custom:hover {
-  background-color: #dee2e6;
-  color: #495057;
+  background-color: var(--treasury-tan);
+  color: var(--treasury-brown);
+  border-color: var(--treasury-brown);
 }
 
 .btn-gradient-primary {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, var(--treasury-brown), var(--treasury-burgundy));
   border: none;
   color: white;
   font-weight: 600;
   padding: 0.5rem 1.5rem;
   border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(139, 69, 19, 0.3);
 }
 
 .btn-gradient-primary:hover {
-  background: linear-gradient(135deg, #5a6fd8, #6a4190);
+  background: linear-gradient(135deg, var(--treasury-burgundy), var(--treasury-dark));
   color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.4);
 }
 
 .form-floating-custom label {
-  color: #6c757d;
+  color: var(--treasury-navy);
   font-weight: 500;
   margin-bottom: 0.25rem;
 }
 
 .form-floating-custom .form-control, .form-floating-custom .form-select {
-  border: 1px solid #e9ecef;
+  border: 2px solid var(--treasury-tan);
   border-radius: 6px;
+  transition: all 0.3s ease;
 }
 
 .form-floating-custom .form-control:focus, .form-floating-custom .form-select:focus {
-  border-color: #D2B48C;
-  box-shadow: 0 0 0 0.2rem rgba(210, 180, 140, 0.25);
+  border-color: var(--treasury-brown);
+  box-shadow: 0 0 0 0.2rem rgba(139, 69, 19, 0.25);
+  outline: none;
 }
 
 .fa-user-circle.text-primary, .fa-ticket-alt.text-primary {
-  color: #8B4513 !important;
+  color: var(--treasury-gold) !important;
 }
 
 .fa-arrow-left {
-  color: #1e3a5f;
+  color: var(--treasury-navy);
 }
 
 .fa-paper-plane {
   color: white;
+}
+
+.modal-content {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(139, 69, 19, 0.2);
+}
+
+.modal-footer {
+  background: var(--treasury-light);
+  border: none;
+  padding: 1.5rem 2rem;
+  border-radius: 0 0 12px 12px;
+}
+
+/* Kenya flag accent */
+.modal-title::after {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 20px;
+  background: linear-gradient(to bottom, var(--kenya-red) 33%, var(--treasury-dark) 33% 66%, var(--kenya-green) 66%);
+  margin-left: 10px;
+  vertical-align: middle;
+  border-radius: 2px;
 }
 </style>

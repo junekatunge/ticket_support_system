@@ -18,6 +18,7 @@
         $subject = $_POST['subject'];
         $comment = $_POST['comment']; 
         $team = $_POST['team_id'] ?? $_POST['team'];
+        $team_member = $_POST['team_member'] ?? null;
         $priority = $_POST['priority'];
         $building = $_POST['building_name'] ?? $_POST['building'];
         $department = $_POST['department_name'] ?? $_POST['department'];
@@ -44,6 +45,7 @@
             'body' => $comment,
             'requester' => $savedRequester->id,
             'team' => $team,
+            'team_member' => $team_member,
             'priority' => $priority,
             'building' => $building,
             'department' => $department,
@@ -103,6 +105,7 @@
       $subject = $_POST['subject'];
       $comment = $_POST['comment']; 
       $team = $_POST['team_id'] ?? $_POST['team'];
+      $team_member = $_POST['team_member'] ?? null;
       $priority = $_POST['priority'];
       $building = $_POST['building_name'] ?? $_POST['building'];
       $department = $_POST['department_name'] ?? $_POST['department'];
@@ -129,6 +132,7 @@
                 'body' => $comment,
                 'requester' => $savedRequester->id,
                 'team' => $team,
+                'team_member' => $team_member,
                 'priority' => $priority,
                 'building' => $building,
                 'department' => $department,
@@ -176,6 +180,10 @@
                 <div class="alert alert-success text-center my-3" role="alert"> <strong>Success! </strong> <?php echo $msg;?></div>
                 <?php endif?>
 
+                <!-- *** INDIVIDUAL ASSIGNMENT FEATURE LOADED *** -->
+                <div style="background: yellow; color: red; text-align: center; padding: 10px; margin: 10px 0; font-weight: bold; font-size: 18px;">
+                    ⚠️ INDIVIDUAL ASSIGNMENT FEATURE IS ACTIVE - SCROLL DOWN TO SEE TEAM MEMBER DROPDOWN ⚠️
+                </div>
                 <form method="POST" action="<?php echo $_SERVER['PHP_SELF']?>">
                     <div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
                         <label for="name" class="col-sm-12 col-lg-2 col-md-2 col-form-label">Name</label>
@@ -210,12 +218,23 @@
                     <div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
                         <label for="name" class="col-sm-12 col-lg-2 col-md-2 col-form-label">Team</label>
                         <div class="col-sm-8">
-                            <select name="team" class="form-control">
+                            <select name="team" id="team-dropdown" class="form-control" onchange="getTeamMember(event.target.value)">
                                 <option>--select--</option>
                                 <?php foreach($teams as $team):?>
                                 <option value="<?php echo $team->id?>"> <?php echo $team->name?></option>
                                 <?php endforeach?>
                             </select>
+                        </div>
+                    </div>
+                    
+                    <!-- DEBUG: Team Member Assignment Dropdown -->
+                    <div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12" style="border: 2px solid red; padding: 10px; margin: 10px 0;">
+                        <label for="assigned" class="col-sm-12 col-lg-2 col-md-2 col-form-label" style="color: red; font-weight: bold;">Assign to Member</label>
+                        <div class="col-sm-8">
+                            <select name="team_member" id="team-member-dropdown" class="form-control" style="border: 2px solid blue;">
+                                <option value="">--Optional: Select a team member--</option>
+                            </select>
+                            <small class="form-text text-muted" style="color: green;">Leave unassigned to let the team manager assign later</small>
                         </div>
                     </div>
                     

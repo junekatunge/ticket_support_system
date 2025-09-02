@@ -75,8 +75,23 @@ if(isset($_POST['submit'])){
       50% { opacity: 1; }
     }
     
+    :root {
+      --treasury-navy: #1e3a5f;
+      --treasury-gold: #c9a96e;
+      --treasury-green: #2d5a3d;
+      --treasury-blue: #4a90a4;
+      --treasury-amber: #b8860b;
+      --treasury-burgundy: #722f37;
+      --treasury-dark: #2c3e50;
+      --treasury-light: #f8f9fc;
+      --treasury-brown: #8B4513;
+      --treasury-tan: #D2B48C;
+      --kenya-red: #922529;
+      --kenya-green: #008C51;
+    }
+    
     body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--treasury-brown) 0%, var(--treasury-dark) 100%);
       min-height: 100vh;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       position: relative;
@@ -125,7 +140,7 @@ if(isset($_POST['submit'])){
       left: 0;
       right: 0;
       height: 4px;
-      background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+      background: linear-gradient(90deg, var(--kenya-red), var(--treasury-dark), var(--kenya-green));
       background-size: 200% 100%;
       animation: shimmer 2s linear infinite;
     }
@@ -171,7 +186,7 @@ if(isset($_POST['submit'])){
       margin-bottom: 0.5rem;
       color: #212529;
       margin-top: -1.25rem;
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, var(--treasury-brown), var(--treasury-burgundy));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -216,22 +231,22 @@ if(isset($_POST['submit'])){
     }
     
     .form-control:focus {
-      border-color: #667eea;
+      border-color: var(--treasury-brown);
       box-shadow: 
-        0 0 0 0.2rem rgba(102, 126, 234, 0.15),
-        0 4px 12px rgba(102, 126, 234, 0.1);
+        0 0 0 0.2rem rgba(139, 69, 19, 0.15),
+        0 4px 12px rgba(139, 69, 19, 0.1);
       outline: none;
       background: rgba(255, 255, 255, 0.95);
       transform: translateY(-1px);
     }
     
     .form-control:hover {
-      border-color: rgba(102, 126, 234, 0.3);
+      border-color: var(--treasury-tan);
       transform: translateY(-1px);
     }
     
     .btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--treasury-brown) 0%, var(--treasury-burgundy) 100%);
       border: 2px solid transparent;
       border-radius: 12px;
       padding: 0.75rem 1.5rem;
@@ -262,14 +277,14 @@ if(isset($_POST['submit'])){
     .btn-primary:hover {
       transform: translateY(-2px);
       box-shadow: 
-        0 8px 25px rgba(102, 126, 234, 0.4),
-        0 4px 12px rgba(118, 75, 162, 0.3);
-      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        0 8px 25px rgba(139, 69, 19, 0.4),
+        0 4px 12px rgba(114, 47, 55, 0.3);
+      background: linear-gradient(135deg, var(--treasury-burgundy) 0%, var(--treasury-dark) 100%);
     }
     
     .btn-primary:active {
       transform: translateY(0);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
     }
     
     .form-check {
@@ -281,7 +296,7 @@ if(isset($_POST['submit'])){
     }
     
     .form-check-input:checked {
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, var(--treasury-brown), var(--treasury-burgundy));
       border-color: #667eea;
     }
     

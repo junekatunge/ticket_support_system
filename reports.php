@@ -43,7 +43,7 @@ switch ($reportType) {
         $reportDescription = 'Comprehensive overview of helpdesk performance and ticket statistics';
         
         // Get basic statistics
-        $stmt = $db->prepare("SELECT COUNT(*) as total_tickets, SUM(CASE WHEN status = 'open' THEN 1 ELSE 0 END) as open_tickets, SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_tickets, SUM(CASE WHEN status = 'solved' THEN 1 ELSE 0 END) as solved_tickets, SUM(CASE WHEN status = 'closed' THEN 1 ELSE 0 END) as closed_tickets, SUM(CASE WHEN priority = 'high' THEN 1 ELSE 0 END) as high_priority_count, SUM(CASE WHEN priority = 'urgent' THEN 1 ELSE 0 END) as urgent_priority_count FROM ticket WHERE DATE(created_at) BETWEEN ? AND ?");
+        $stmt = $db->prepare("SELECT COUNT(*) as total_tickets, SUM(CASE WHEN status = 'open' THEN 1 ELSE 0 END) as open_tickets, SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_tickets, SUM(CASE WHEN status = 'solved' THEN 1 ELSE 0 END) as solved_tickets, SUM(CASE WHEN status = 'closed' THEN 1 ELSE 0 END) as closed_tickets, SUM(CASE WHEN priority = 'high' THEN 1 ELSE 0 END) as high_priority_count, SUM(CASE WHEN priority = 'medium' THEN 1 ELSE 0 END) as medium_priority_count, SUM(CASE WHEN priority = 'low' THEN 1 ELSE 0 END) as low_priority_count, SUM(CASE WHEN priority = 'urgent' THEN 1 ELSE 0 END) as urgent_priority_count FROM ticket WHERE DATE(created_at) BETWEEN ? AND ?");
         $stmt->bind_param("ss", $startDate, $endDate);
         $stmt->execute();
         $reportData['stats'] = $stmt->get_result()->fetch_assoc();
@@ -64,6 +64,12 @@ switch ($reportType) {
     case 'tickets':
         $reportTitle = 'Detailed Tickets Report';
         $reportDescription = 'Detailed listing of all tickets with filters applied';
+        
+        // Get overall statistics for summary cards
+        $stmt = $db->prepare("SELECT COUNT(*) as total_tickets, SUM(CASE WHEN status = 'solved' THEN 1 ELSE 0 END) as solved_tickets FROM ticket WHERE DATE(created_at) BETWEEN ? AND ?");
+        $stmt->bind_param("ss", $startDate, $endDate);
+        $stmt->execute();
+        $reportData['stats'] = $stmt->get_result()->fetch_assoc();
         
         $whereConditions = ["DATE(t.created_at) BETWEEN ? AND ?"];
         $params = [$startDate, $endDate];
@@ -97,6 +103,12 @@ switch ($reportType) {
         $reportTitle = 'Team Performance Report';
         $reportDescription = 'Analysis of team and individual performance metrics';
         
+        // Get overall statistics for summary cards
+        $stmt = $db->prepare("SELECT COUNT(*) as total_tickets, SUM(CASE WHEN status = 'solved' THEN 1 ELSE 0 END) as solved_tickets FROM ticket WHERE DATE(created_at) BETWEEN ? AND ?");
+        $stmt->bind_param("ss", $startDate, $endDate);
+        $stmt->execute();
+        $reportData['stats'] = $stmt->get_result()->fetch_assoc();
+        
         // Simple team performance metrics  
         $stmt = $db->prepare("SELECT team, COUNT(*) as total_tickets, SUM(CASE WHEN status = 'solved' THEN 1 ELSE 0 END) as solved_tickets FROM ticket WHERE DATE(created_at) BETWEEN ? AND ? GROUP BY team ORDER BY solved_tickets DESC");
         $stmt->bind_param("ss", $startDate, $endDate);
@@ -111,12 +123,17 @@ switch ($reportType) {
         $reportTitle = 'Trend Analysis Report';
         $reportDescription = 'Historical trends and patterns in ticket volume and resolution';
         
+        // Get overall statistics for summary cards
+        $stmt = $db->prepare("SELECT COUNT(*) as total_tickets, SUM(CASE WHEN status = 'solved' THEN 1 ELSE 0 END) as solved_tickets, SUM(CASE WHEN status = 'closed' THEN 1 ELSE 0 END) as closed_tickets FROM ticket WHERE DATE(created_at) BETWEEN ? AND ?");
+        $stmt->bind_param("ss", $startDate, $endDate);
+        $stmt->execute();
+        $reportData['stats'] = $stmt->get_result()->fetch_assoc();
+        
         // Daily ticket trends
         $stmt = $db->prepare("SELECT DATE(created_at) as ticket_date, COUNT(*) as tickets_created, SUM(CASE WHEN status = 'solved' THEN 1 ELSE 0 END) as tickets_solved FROM ticket WHERE DATE(created_at) BETWEEN ? AND ? GROUP BY DATE(created_at) ORDER BY ticket_date ASC");
         $stmt->bind_param("ss", $startDate, $endDate);
         $stmt->execute();
         $reportData['daily_trends'] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        
         
         // Category trends
         $stmt = $db->prepare("SELECT category, COUNT(*) as count FROM ticket WHERE DATE(created_at) BETWEEN ? AND ? GROUP BY category ORDER BY count DESC");
@@ -136,12 +153,7 @@ if (isset($reportData['stats'])) {
     $solvedTickets = $reportData['stats']['solved_tickets'];
 }
 
-if (isset($reportData['team_performance'])) {
-    $totalTickets = array_sum(array_column($reportData['team_performance'], 'total_tickets'));
-    $solvedTickets = array_sum(array_column($reportData['team_performance'], 'solved_tickets'));
-    $avgTimes = [];
-    $avgResolutionTime = !empty($avgTimes) ? round(array_sum($avgTimes) / count($avgTimes), 1) : 0;
-}
+// Don't override stats data - keep the values from the database queries
 ?>
 
 <!DOCTYPE html>
@@ -247,7 +259,7 @@ if (isset($reportData['team_performance'])) {
     <div class="d-flex">
         <?php include 'sidebar.php'; ?>
         
-        <div style="flex: 1; padding: 2rem; width: 100%; margin-top: 70px;">
+        <div style="flex: 1; padding: 2rem; width: 100%; margin-top: 70px; height: calc(100vh - 70px); overflow-y: auto;">
             <div class="container-fluid" style="max-width: none; padding: 0;">
                 <!-- Page Header -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -345,7 +357,7 @@ if (isset($reportData['team_performance'])) {
 
                         <!-- Summary Stats -->
                         <div class="row mb-4">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="stat-card">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
@@ -356,25 +368,36 @@ if (isset($reportData['team_performance'])) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h3 class="mb-0"><?= number_format($reportData['stats']['open_tickets'] ?? 0) ?></h3>
+                                            <p class="mb-0">Open Tickets</p>
+                                        </div>
+                                        <i class="fas fa-folder-open fa-2x opacity-75"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h3 class="mb-0"><?= number_format($reportData['stats']['pending_tickets'] ?? 0) ?></h3>
+                                            <p class="mb-0">Pending</p>
+                                        </div>
+                                        <i class="fas fa-clock fa-2x opacity-75"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
                                 <div class="stat-card">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <h3 class="mb-0"><?= number_format($solvedTickets) ?></h3>
-                                            <p class="mb-0">Solved Tickets</p>
+                                            <p class="mb-0">Solved</p>
                                         </div>
                                         <i class="fas fa-check-circle fa-2x opacity-75"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="stat-card">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h3 class="mb-0"><?= $totalTickets > 0 ? round(($solvedTickets / $totalTickets) * 100, 1) : 0 ?>%</h3>
-                                            <p class="mb-0">Resolution Rate</p>
-                                        </div>
-                                        <i class="fas fa-chart-line fa-2x opacity-75"></i>
                                     </div>
                                 </div>
                             </div>
@@ -632,34 +655,32 @@ if (isset($reportData['team_performance'])) {
             // Create a new window/document with charts for printing
             const printWindow = window.open('', '_blank', 'width=1200,height=800');
             
-            let chartsHTML = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <title><?= ucfirst($reportType) ?> Charts - Kenya National Treasury Helpdesk</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; margin: 20px; }
-                        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #8B4513; padding-bottom: 20px; }
-                        .header h1 { color: #8B4513; margin: 0; }
-                        .header p { color: #666; margin: 5px 0; }
-                        .chart-container { margin: 40px 0; page-break-inside: avoid; }
-                        .chart-title { font-size: 18px; font-weight: bold; color: #8B4513; margin-bottom: 15px; text-align: center; }
-                        canvas { max-width: 100%; height: auto; border: 1px solid #ddd; }
-                        @media print { 
-                            body { margin: 0; } 
-                            .chart-container { page-break-after: always; }
-                            .chart-container:last-child { page-break-after: auto; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <h1>Kenya National Treasury Helpdesk</h1>
-                        <h2><?= ucfirst($reportType) ?> Report Charts</h2>
-                        <p>Generated on: ${new Date().toLocaleString()}</p>
-                    </div>
-            `;
+            let chartsHTML = '<!DOCTYPE html>' +
+                '<html>' +
+                '<head>' +
+                '<meta charset="UTF-8">' +
+                '<title><?= ucfirst($reportType) ?> Charts - Kenya National Treasury Helpdesk</title>' +
+                '<style>' +
+                'body { font-family: Arial, sans-serif; margin: 20px; }' +
+                '.header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #8B4513; padding-bottom: 20px; }' +
+                '.header h1 { color: #8B4513; margin: 0; }' +
+                '.header p { color: #666; margin: 5px 0; }' +
+                '.chart-container { margin: 40px 0; page-break-inside: avoid; }' +
+                '.chart-title { font-size: 18px; font-weight: bold; color: #8B4513; margin-bottom: 15px; text-align: center; }' +
+                'canvas { max-width: 100%; height: auto; border: 1px solid #ddd; }' +
+                '@media print { ' +
+                'body { margin: 0; } ' +
+                '.chart-container { page-break-after: always; }' +
+                '.chart-container:last-child { page-break-after: auto; }' +
+                '}' +
+                '</style>' +
+                '</head>' +
+                '<body>' +
+                '<div class="header">' +
+                '<h1>Kenya National Treasury Helpdesk</h1>' +
+                '<h2><?= ucfirst($reportType) ?> Report Charts</h2>' +
+                '<p>Generated on: ' + new Date().toLocaleString() + '</p>' +
+                '</div>';
             
             // Find all canvas elements (charts) and copy them
             const canvases = document.querySelectorAll('canvas');
@@ -667,26 +688,22 @@ if (isset($reportData['team_performance'])) {
                 if (canvas.id) {
                     const dataURL = canvas.toDataURL('image/png');
                     const chartTitle = getChartTitle(canvas.id);
-                    chartsHTML += `
-                        <div class="chart-container">
-                            <div class="chart-title">${chartTitle}</div>
-                            <img src="${dataURL}" style="max-width: 100%; height: auto;" alt="${chartTitle}">
-                        </div>
-                    `;
+                    chartsHTML += '<div class="chart-container">' +
+                        '<div class="chart-title">' + chartTitle + '</div>' +
+                        '<img src="' + dataURL + '" style="max-width: 100%; height: auto;" alt="' + chartTitle + '">' +
+                        '</div>';
                 }
             });
             
-            chartsHTML += `
-                    <script>
-                        window.onload = function() {
-                            setTimeout(function() {
-                                window.print();
-                            }, 1000);
-                        }
-                    </script>
-                </body>
-                </html>
-            `;
+            chartsHTML += '<script>' +
+                'window.onload = function() {' +
+                'setTimeout(function() {' +
+                'window.print();' +
+                '}, 1000);' +
+                '}' +
+                '</' + 'script>' +
+                '</body>' +
+                '</html>';
             
             printWindow.document.write(chartsHTML);
             printWindow.document.close();
