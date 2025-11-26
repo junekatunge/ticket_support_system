@@ -22,6 +22,7 @@ $openTickets = count(array_filter($allTicket, function($t) { return $t->status =
 $pendingTickets = count(array_filter($allTicket, function($t) { return $t->status == 'pending'; }));
 $solvedTickets = count(array_filter($allTicket, function($t) { return $t->status == 'solved'; }));
 $closedTickets = count(array_filter($allTicket, function($t) { return $t->status == 'closed'; }));
+$unassignedTickets = count(array_filter($allTicket, function($t) { return empty($t->team_member); }));
 
 if (isset($_GET['del'])) {
     $id = $_GET['del'];
@@ -60,14 +61,25 @@ if (isset($_GET['del'])) {
 <style>
   .stat-card {
     border-radius: 12px;
-    border: none;
+    border: 1px solid transparent;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.2s;
   }
   .stat-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   }
+  .stat-card.border-primary {
+    border-color: #8B4513 !important;
+    box-shadow: 0 4px 16px rgba(139, 69, 19, 0.3);
+  }
+  .filter-card {
+    transition: all 0.3s ease;
+  }
+  .filter-card:hover {
+    transform: translateY(-5px) scale(1.02);
+  }
+
   .stat-icon {
     width: 50px;
     height: 50px;
@@ -142,6 +154,11 @@ if (isset($_GET['del'])) {
   }
   .filter-btn:hover {
     transform: translateY(-2px);
+  }
+  .filter-btn.active {
+    background: linear-gradient(135deg, #8B4513 0%, #D2B48C 100%) !important;
+    border-color: #8B4513 !important;
+    color: white !important;
   }
   .dropdown-menu {
     border: none;
@@ -308,8 +325,8 @@ if (isset($_GET['del'])) {
   <div class="container-fluid">
     <!-- Statistics Cards -->
     <div class="row mb-4 mt-4">
-      <div class="col-xl-3 col-md-6 mb-3">
-        <div class="card stat-card">
+      <div class="col-xl col-md-6 mb-3">
+        <div class="card stat-card filter-card" data-filter="all" style="cursor: pointer;">
           <div class="card-body">
             <div class="d-flex align-items-center">
               <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3">
@@ -323,9 +340,9 @@ if (isset($_GET['del'])) {
           </div>
         </div>
       </div>
-      
-      <div class="col-xl-3 col-md-6 mb-3">
-        <div class="card stat-card">
+
+      <div class="col-xl col-md-6 mb-3">
+        <div class="card stat-card filter-card" data-filter="open" style="cursor: pointer;">
           <div class="card-body">
             <div class="d-flex align-items-center">
               <div class="stat-icon bg-success bg-opacity-10 text-success me-3">
@@ -339,9 +356,9 @@ if (isset($_GET['del'])) {
           </div>
         </div>
       </div>
-      
-      <div class="col-xl-3 col-md-6 mb-3">
-        <div class="card stat-card">
+
+      <div class="col-xl col-md-6 mb-3">
+        <div class="card stat-card filter-card" data-filter="pending" style="cursor: pointer;">
           <div class="card-body">
             <div class="d-flex align-items-center">
               <div class="stat-icon bg-warning bg-opacity-10 text-warning me-3">
@@ -355,9 +372,9 @@ if (isset($_GET['del'])) {
           </div>
         </div>
       </div>
-      
-      <div class="col-xl-3 col-md-6 mb-3">
-        <div class="card stat-card">
+
+      <div class="col-xl col-md-6 mb-3">
+        <div class="card stat-card filter-card" data-filter="solved" style="cursor: pointer;">
           <div class="card-body">
             <div class="d-flex align-items-center">
               <div class="stat-icon bg-info bg-opacity-10 text-info me-3">
@@ -371,6 +388,23 @@ if (isset($_GET['del'])) {
           </div>
         </div>
       </div>
+
+      <div class="col-xl col-md-6 mb-3">
+        <div class="card stat-card filter-card" data-filter="closed" style="cursor: pointer;">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="stat-icon bg-secondary bg-opacity-10 text-secondary me-3">
+                <i class="fas fa-archive"></i>
+              </div>
+              <div>
+                <div class="text-muted small">Closed</div>
+                <div class="h4 mb-0"><?php echo $closedTickets; ?></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Create New Ticket Button -->
@@ -393,11 +427,24 @@ if (isset($_GET['del'])) {
           </div>
           <div class="col-md-8 text-end">
             <div class="btn-group" role="group">
-              <button type="button" class="btn btn-outline-secondary filter-btn" data-filter="all">All</button>
-              <button type="button" class="btn btn-outline-success filter-btn" data-filter="open">Open</button>
-              <button type="button" class="btn btn-outline-warning filter-btn" data-filter="pending">Pending</button>
-              <button type="button" class="btn btn-outline-info filter-btn" data-filter="solved">Solved</button>
-              <button type="button" class="btn btn-outline-secondary filter-btn" data-filter="closed">Closed</button>
+              <button type="button" class="btn btn-outline-secondary filter-btn" data-filter="all">
+                <i class="fas fa-list me-1"></i>All
+              </button>
+              <button type="button" class="btn btn-outline-success filter-btn" data-filter="open">
+                <i class="fas fa-folder-open me-1"></i>Open
+              </button>
+              <button type="button" class="btn btn-outline-warning filter-btn" data-filter="pending">
+                <i class="fas fa-clock me-1"></i>Pending
+              </button>
+              <button type="button" class="btn btn-outline-info filter-btn" data-filter="solved">
+                <i class="fas fa-check-circle me-1"></i>Solved
+              </button>
+              <button type="button" class="btn btn-outline-secondary filter-btn" data-filter="closed">
+                <i class="fas fa-archive me-1"></i>Closed
+              </button>
+              <button type="button" class="btn btn-outline-danger filter-btn" data-filter="unassigned">
+                <i class="fas fa-user-slash me-1"></i>Unassigned (<?php echo $unassignedTickets; ?>)
+              </button>
             </div>
           </div>
         </div>
@@ -425,7 +472,7 @@ if (isset($_GET['del'])) {
             </thead>
             <tbody>
               <?php foreach($allTicket as $ticket):?>
-              <tr data-status="<?php echo $ticket->status ?? 'open'; ?>">
+              <tr data-status="<?php echo $ticket->status ?? 'open'; ?>" data-assigned="<?php echo empty($ticket->team_member) ? 'no' : 'yes'; ?>">
                 <td class="fw-semibold">#<?php echo str_pad($ticket->id, 5, '0', STR_PAD_LEFT); ?></td>
                 <td>
                   <a href="./ticket-details.php?id=<?php echo $ticket->id?>" 
@@ -646,22 +693,71 @@ $(document).ready(function() {
         table.search(this.value).draw();
     });
     
+    // Filter function to apply status filter
+    function applyFilter(filterValue) {
+        // Update filter button states
+        $('.filter-btn').removeClass('active');
+        $('.filter-btn[data-filter="' + filterValue + '"]').addClass('active');
+
+        // Highlight selected stat card
+        $('.filter-card').removeClass('border-primary').css('border-width', '1px');
+        $('.filter-card[data-filter="' + filterValue + '"]').addClass('border-primary').css('border-width', '3px');
+
+        // Clear any existing search
+        table.search('').columns().search('').draw();
+
+        // Apply custom row filter using data attributes
+        $.fn.dataTable.ext.search.push(
+            function(settings, data, dataIndex) {
+                var row = table.row(dataIndex).node();
+                var rowStatus = $(row).data('status');
+                var rowAssigned = $(row).data('assigned');
+
+                if (filterValue === 'all') {
+                    return true;
+                } else if (filterValue === 'unassigned') {
+                    return rowAssigned === 'no';
+                } else {
+                    return rowStatus === filterValue;
+                }
+            }
+        );
+
+        // Redraw table with filter
+        table.draw();
+
+        // Clear the filter function after drawing
+        $.fn.dataTable.ext.search.pop();
+
+        // Update table header text to show current filter
+        var headerText = filterValue === 'all' ? 'All Tickets' : ucFirst(filterValue) + ' Tickets';
+        $('.ticket-table .card-header h5').text(headerText);
+    }
+
+    // Helper function to capitalize first letter
+    function ucFirst(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
     // Filter buttons functionality
     $('.filter-btn').on('click', function() {
-        $('.filter-btn').removeClass('active btn-primary').addClass('btn-outline-secondary');
-        $(this).removeClass('btn-outline-secondary').addClass('active btn-primary');
-        
         var filterValue = $(this).data('filter');
-        
-        if (filterValue === 'all') {
-            table.column(2).search('').draw();
-        } else {
-            table.column(2).search('^' + filterValue + '$', true, false).draw();
-        }
+        applyFilter(filterValue);
     });
-    
+
+    // Stat card click functionality
+    $('.filter-card').on('click', function() {
+        var filterValue = $(this).data('filter');
+        applyFilter(filterValue);
+
+        // Scroll to table
+        $('html, body').animate({
+            scrollTop: $('#dataTable').offset().top - 100
+        }, 500);
+    });
+
     // Set 'All' filter as active by default
-    $('.filter-btn[data-filter="all"]').removeClass('btn-outline-secondary').addClass('active btn-primary');
+    applyFilter('all');
     
     // Add animation on page load
     $('.stat-card').each(function(index) {

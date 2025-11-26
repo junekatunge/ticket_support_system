@@ -105,19 +105,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>My Profile - Helpdesk</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --treasury-brown: #8B4513;
+            --treasury-tan: #D2B48C;
+            --treasury-light: #f8f9fc;
+        }
+        body {
+            background: var(--treasury-light);
+        }
+        .app-shell { display: flex; height: 100vh; }
+        .content {
+            padding: calc(60px + 1rem) 1.25rem 2rem;
+            height: 100vh;
+            overflow-y: auto;
+            flex: 1;
+        }
+    </style>
 </head>
 <body>
-    <div class="d-flex">
-        <?php include 'sidebar.php'; ?>
-        
-        <div style="flex: 1; padding: 2rem; width: 100%;">
-            <div class="container-fluid" style="max-width: none; padding: 0;">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-user-circle me-2"></i>My Profile
-        </h1>
-    </div>
+<?php include 'navbar.php'; ?>
+
+<div class="app-shell">
+    <?php include 'sidebar.php'; ?>
+
+    <section class="content content-with-navbar">
+        <div class="container-fluid">
+            <!-- Page Heading -->
+            <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <h1 class="h3 mb-1">
+                        <i class="fas fa-user-circle me-2" style="color: var(--treasury-brown);"></i>My Profile
+                    </h1>
+                    <p class="text-muted mb-0">Manage your account settings and information</p>
+                </div>
+                <div>
+                    <?php include './includes/create-ticket-button.php'; ?>
+                </div>
+            </div>
 
     <div class="row">
         <div class="col-12">
@@ -171,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <hr class="my-4">
                         
-                        <h6 class="mb-3 text-primary">Change Password (Optional)</h6>
+                        <h6 class="mb-3" style="color: var(--treasury-brown);">Change Password (Optional)</h6>
                         
                         <div class="row mb-3">
                             <div class="col-md-4">
@@ -217,9 +243,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
         </div>
+
+        <!-- Footer -->
+        <div class="text-center text-muted py-3 mt-4">
+            <small>© <?php echo date('Y'); ?> ICT Helpdesk. All rights reserved.</small>
+        </div>
     </div>
+    </section>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
 // Enhanced form validation
 document.addEventListener('DOMContentLoaded', function() {
@@ -387,10 +420,14 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 </style>
 
-            </div>
-        </div>
-    </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Load create ticket modal functionality
+    jQuery.getScript('./includes/create-ticket-modal.js');
+</script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Include Create Ticket Modal -->
+<?php include './includes/create-ticket-modal.php'; ?>
+
 </body>
 </html>

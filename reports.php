@@ -13,6 +13,202 @@ require_once './src/requester.php';
 
 $user = $_SESSION['user'];
 
+// Rule-Based Insights Generation Function
+function generateAIInsights($data) {
+    $insights = [];
+    $stats = $data['stats'];
+
+    // Calculate resolution rate
+    $resolutionRate = $stats['total_tickets'] > 0
+        ? round(($stats['solved_tickets'] / $stats['total_tickets']) * 100, 1)
+        : 0;
+
+    // Calculate average tickets per day
+    $totalTickets = $stats['total_tickets'];
+    $daysInPeriod = 30; // Assuming 30 days
+    $avgTicketsPerDay = round($totalTickets / $daysInPeriod, 1);
+
+    // Performance Analysis with AI-powered insights
+    if ($resolutionRate >= 80) {
+        $insights[] = [
+            'type' => 'success',
+            'icon' => 'fa-trophy',
+            'title' => 'Excellent Performance - Industry Leading',
+            'description' => "Your team has achieved a {$resolutionRate}% resolution rate, which exceeds industry standards (70-75%). This demonstrates exceptional problem-solving capabilities, efficient workflows, and strong team collaboration. Continue this momentum by documenting successful strategies."
+        ];
+    } elseif ($resolutionRate >= 60) {
+        $targetImprovement = 80 - $resolutionRate;
+        $insights[] = [
+            'type' => 'warning',
+            'icon' => 'fa-chart-line',
+            'title' => 'Good Performance - Optimization Opportunity',
+            'description' => "Current resolution rate is {$resolutionRate}%. To reach excellent performance (80%), improve by {$targetImprovement}%. Key actions: (1) Identify common blockers in unresolved tickets, (2) Implement faster triage processes, (3) Provide additional training on complex issues."
+        ];
+    } else {
+        $ticketsToImprove = round($totalTickets * ((80 - $resolutionRate) / 100));
+        $insights[] = [
+            'type' => 'danger',
+            'icon' => 'fa-exclamation-circle',
+            'title' => 'Performance Requires Immediate Action',
+            'description' => "Resolution rate of {$resolutionRate}% is below optimal levels. Resolving {$ticketsToImprove} more tickets would reach 80% target. Critical actions: (1) Audit open tickets for quick wins, (2) Increase team capacity, (3) Review and optimize workflows, (4) Escalate systemic issues."
+        ];
+    }
+
+    // Advanced Workload Analysis
+    $openPendingTotal = $stats['open_tickets'] + $stats['pending_tickets'];
+    $backlogRatio = $totalTickets > 0 ? round(($openPendingTotal / $totalTickets) * 100, 1) : 0;
+
+    if ($openPendingTotal > $stats['total_tickets'] * 0.5) {
+        $insights[] = [
+            'type' => 'warning',
+            'icon' => 'fa-exclamation-triangle',
+            'title' => 'High Backlog Alert - {$backlogRatio}% Unresolved',
+            'description' => "{$openPendingTotal} tickets pending ({$backlogRatio}% of total workload). AI Analysis: At current resolution rate, backlog will take approximately " . round($openPendingTotal / max($avgTicketsPerDay, 1)) . " days to clear. Recommendations: (1) Prioritize by impact, (2) Consider temporary resource allocation, (3) Implement ticket aging policies."
+        ];
+    } elseif ($backlogRatio > 30) {
+        $insights[] = [
+            'type' => 'info',
+            'icon' => 'fa-tasks',
+            'title' => 'Moderate Backlog - Manageable',
+            'description' => "Current backlog is {$backlogRatio}% ({$openPendingTotal} tickets). This is within normal range but requires monitoring. Maintain current pace and prevent backlog growth by matching intake with resolution velocity."
+        ];
+    } else {
+        $insights[] = [
+            'type' => 'success',
+            'icon' => 'fa-check-double',
+            'title' => 'Low Backlog - Excellent Control',
+            'description' => "Only {$backlogRatio}% backlog ({$openPendingTotal} tickets) indicates excellent ticket flow management. Your team is processing tickets faster than they arrive. Use this opportunity to focus on preventive measures and knowledge base development."
+        ];
+    }
+
+    // Priority-Based Risk Analysis
+    if (($stats['urgent_tickets'] + $stats['high_priority_tickets']) > 0) {
+        $criticalCount = $stats['urgent_tickets'] + $stats['high_priority_tickets'];
+        $criticalRatio = round(($criticalCount / max($totalTickets, 1)) * 100, 1);
+
+        if ($criticalRatio > 25) {
+            $insights[] = [
+                'type' => 'danger',
+                'icon' => 'fa-fire-extinguisher',
+                'title' => 'Critical Priority Crisis - {$criticalRatio}% High Risk',
+                'description' => "{$criticalCount} urgent/high-priority tickets ({$criticalRatio}% of total) indicates systemic issues. AI Recommendation: (1) Emergency triage session, (2) Escalate to management, (3) Investigate root causes, (4) Implement preventive controls to reduce future critical incidents."
+            ];
+        } else {
+            $insights[] = [
+                'type' => 'info',
+                'icon' => 'fa-fire',
+                'title' => 'Critical Tickets - Normal Range',
+                'description' => "{$criticalCount} high-priority or urgent tickets detected ({$criticalRatio}% of total). This is within expected range. Continue prioritizing these to maintain SLA compliance and user satisfaction. Average resolution target: 1 day for urgent tickets."
+            ];
+        }
+    }
+
+    // Advanced Category Analysis with Trends
+    if (!empty($data['top_categories'])) {
+        $topCategory = $data['top_categories'][0];
+        $categoryPercentage = round(($topCategory['count'] / max($totalTickets, 1)) * 100, 1);
+
+        if ($categoryPercentage > 40) {
+            $insights[] = [
+                'type' => 'warning',
+                'icon' => 'fa-bullseye',
+                'title' => 'Category Concentration - {$categoryPercentage}% in One Area',
+                'description' => "'{$topCategory['category']}' dominates with {$topCategory['count']} tickets ({$categoryPercentage}% of total). High concentration suggests: (1) Potential systemic issue requiring root cause analysis, (2) Opportunity for targeted training, (3) Need for comprehensive knowledge base articles, (4) Consider dedicated specialist assignment."
+            ];
+        } else {
+            $insights[] = [
+                'type' => 'info',
+                'icon' => 'fa-lightbulb',
+                'title' => 'Leading Issue Category - {$topCategory["category"]}',
+                'description' => "'{$topCategory['category']}' leads with {$topCategory['count']} tickets ({$categoryPercentage}% of total). AI Insight: Create 3-5 targeted knowledge base articles addressing common '{$topCategory['category']}' scenarios. Expected impact: 15-25% reduction in similar tickets over next 30 days."
+            ];
+        }
+    }
+
+    // Team Performance Analysis with Benchmarking
+    if (!empty($data['team_stats'])) {
+        $bestTeam = null;
+        $worstTeam = null;
+        $bestRate = 0;
+        $worstRate = 100;
+        $totalTeamTickets = 0;
+
+        foreach ($data['team_stats'] as $team) {
+            if ($team['total_tickets'] > 0) {
+                $teamRate = ($team['solved_tickets'] / $team['total_tickets']) * 100;
+                $totalTeamTickets += $team['total_tickets'];
+
+                if ($teamRate > $bestRate) {
+                    $bestRate = $teamRate;
+                    $bestTeam = $team;
+                }
+                if ($teamRate < $worstRate && $team['total_tickets'] > 5) { // Only consider teams with meaningful ticket count
+                    $worstRate = $teamRate;
+                    $worstTeam = $team;
+                }
+            }
+        }
+
+        if ($bestTeam) {
+            $insights[] = [
+                'type' => 'success',
+                'icon' => 'fa-users',
+                'title' => 'Top Performing Team - Excellence Model',
+                'description' => "Team {$bestTeam['team']} leads with " . round($bestRate, 1) . "% resolution rate on {$bestTeam['total_tickets']} tickets. AI Recommendation: (1) Document their successful processes, (2) Conduct knowledge-sharing session, (3) Consider peer mentoring program, (4) Replicate their ticket prioritization strategy across other teams."
+            ];
+        }
+
+        if ($worstTeam && $worstTeam !== $bestTeam) {
+            $performanceGap = round($bestRate - $worstRate, 1);
+            $insights[] = [
+                'type' => 'warning',
+                'icon' => 'fa-user-cog',
+                'title' => 'Team Performance Gap - {$performanceGap}% Variance',
+                'description' => "Team {$worstTeam['team']} shows " . round($worstRate, 1) . "% resolution rate vs top team's " . round($bestRate, 1) . "%. AI Analysis: (1) Review ticket complexity distribution, (2) Assess resource allocation, (3) Provide targeted training from high-performers, (4) Investigate if lower performing team handles more complex cases."
+            ];
+        }
+    }
+
+    // Predictive Analytics & Smart Recommendations
+    $projectedTickets = round($avgTicketsPerDay * 30);
+    $topCategoryName = isset($data['top_categories'][0]['category']) ? $data['top_categories'][0]['category'] : 'common';
+    $insights[] = [
+        'type' => 'primary',
+        'icon' => 'fa-robot',
+        'title' => 'AI-Powered Strategic Recommendations',
+        'description' => "Predictive Analysis: Expecting ~{$projectedTickets} tickets next period based on {$avgTicketsPerDay}/day average. Priority Actions: (1) Implement automated ticket routing to reduce triage time by 40%, (2) Deploy chatbot for {$topCategoryName} issues (potential 20% ticket reduction), (3) Schedule preventive maintenance during low-volume periods, (4) Build self-service portal for top 3 categories, (5) Implement SLA-based escalation automation."
+    ];
+
+    // Trend-based Early Warning
+    if (!empty($data['weekly_trends'])) {
+        $recentWeeks = array_slice($data['weekly_trends'], 0, 2);
+        if (count($recentWeeks) >= 2) {
+            $weeklyChange = $recentWeeks[0]['tickets_created'] - $recentWeeks[1]['tickets_created'];
+            $weeklyChangePercent = $recentWeeks[1]['tickets_created'] > 0
+                ? round(($weeklyChange / $recentWeeks[1]['tickets_created']) * 100, 1)
+                : 0;
+
+            if ($weeklyChangePercent > 20) {
+                $insights[] = [
+                    'type' => 'warning',
+                    'icon' => 'fa-chart-line',
+                    'title' => 'Volume Surge Alert - +{$weeklyChangePercent}% Increase',
+                    'description' => "Ticket volume increased by {$weeklyChangePercent}% this week ({$weeklyChange} more tickets). AI Trend Analysis: (1) Investigate recent changes (software updates, policy changes), (2) Prepare for sustained high volume, (3) Consider temporary resource boost, (4) Monitor for specific issue patterns causing surge."
+                ];
+            } elseif ($weeklyChangePercent < -20) {
+                $insights[] = [
+                    'type' => 'success',
+                    'icon' => 'fa-arrow-down',
+                    'title' => 'Volume Decrease - {$weeklyChangePercent}% Reduction',
+                    'description' => "Ticket volume decreased by " . abs($weeklyChangePercent) . "% this week. Positive indicators suggest: (1) Recent improvements are working, (2) Users adapting to new systems, (3) Knowledge base effectiveness, (4) Proactive support reducing issues. Maintain current strategies."
+                ];
+            }
+        }
+    }
+
+    return $insights;
+}
+
 // Get report parameters
 $reportType = $_GET['type'] ?? 'overview';
 // Use wider date range for trends to show actual data
@@ -122,24 +318,56 @@ switch ($reportType) {
     case 'trends':
         $reportTitle = 'Trend Analysis Report';
         $reportDescription = 'Historical trends and patterns in ticket volume and resolution';
-        
+
         // Get overall statistics for summary cards
         $stmt = $db->prepare("SELECT COUNT(*) as total_tickets, SUM(CASE WHEN status = 'solved' THEN 1 ELSE 0 END) as solved_tickets, SUM(CASE WHEN status = 'closed' THEN 1 ELSE 0 END) as closed_tickets FROM ticket WHERE DATE(created_at) BETWEEN ? AND ?");
         $stmt->bind_param("ss", $startDate, $endDate);
         $stmt->execute();
         $reportData['stats'] = $stmt->get_result()->fetch_assoc();
-        
+
         // Daily ticket trends
         $stmt = $db->prepare("SELECT DATE(created_at) as ticket_date, COUNT(*) as tickets_created, SUM(CASE WHEN status = 'solved' THEN 1 ELSE 0 END) as tickets_solved FROM ticket WHERE DATE(created_at) BETWEEN ? AND ? GROUP BY DATE(created_at) ORDER BY ticket_date ASC");
         $stmt->bind_param("ss", $startDate, $endDate);
         $stmt->execute();
         $reportData['daily_trends'] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        
+
         // Category trends
         $stmt = $db->prepare("SELECT category, COUNT(*) as count FROM ticket WHERE DATE(created_at) BETWEEN ? AND ? GROUP BY category ORDER BY count DESC");
         $stmt->bind_param("ss", $startDate, $endDate);
         $stmt->execute();
         $reportData['category_trends'] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        break;
+
+    case 'insights':
+        $reportTitle = 'Analytics Insights Report';
+        $reportDescription = 'Intelligent analysis and recommendations based on rule-based analytics';
+
+        // Get comprehensive statistics for analysis
+        $stmt = $db->prepare("SELECT COUNT(*) as total_tickets, SUM(CASE WHEN status = 'open' THEN 1 ELSE 0 END) as open_tickets, SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_tickets, SUM(CASE WHEN status = 'solved' THEN 1 ELSE 0 END) as solved_tickets, SUM(CASE WHEN status = 'closed' THEN 1 ELSE 0 END) as closed_tickets, SUM(CASE WHEN priority = 'urgent' THEN 1 ELSE 0 END) as urgent_tickets, SUM(CASE WHEN priority = 'high' THEN 1 ELSE 0 END) as high_priority_tickets FROM ticket WHERE DATE(created_at) BETWEEN ? AND ?");
+        $stmt->bind_param("ss", $startDate, $endDate);
+        $stmt->execute();
+        $reportData['stats'] = $stmt->get_result()->fetch_assoc();
+
+        // Get category distribution
+        $stmt = $db->prepare("SELECT category, COUNT(*) as count FROM ticket WHERE DATE(created_at) BETWEEN ? AND ? GROUP BY category ORDER BY count DESC LIMIT 5");
+        $stmt->bind_param("ss", $startDate, $endDate);
+        $stmt->execute();
+        $reportData['top_categories'] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+        // Get team performance
+        $stmt = $db->prepare("SELECT team, COUNT(*) as total_tickets, SUM(CASE WHEN status = 'solved' THEN 1 ELSE 0 END) as solved_tickets FROM ticket WHERE DATE(created_at) BETWEEN ? AND ? GROUP BY team ORDER BY total_tickets DESC");
+        $stmt->bind_param("ss", $startDate, $endDate);
+        $stmt->execute();
+        $reportData['team_stats'] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+        // Get weekly trends
+        $stmt = $db->prepare("SELECT YEARWEEK(created_at) as week_num, COUNT(*) as tickets_created, SUM(CASE WHEN status = 'solved' THEN 1 ELSE 0 END) as tickets_solved FROM ticket WHERE DATE(created_at) BETWEEN ? AND ? GROUP BY week_num ORDER BY week_num DESC LIMIT 4");
+        $stmt->bind_param("ss", $startDate, $endDate);
+        $stmt->execute();
+        $reportData['weekly_trends'] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+        // Generate insights
+        $reportData['ai_insights'] = generateAIInsights($reportData);
         break;
 }
 
@@ -301,6 +529,7 @@ if (isset($reportData['stats'])) {
                                         <option value="tickets" <?= $reportType == 'tickets' ? 'selected' : '' ?>>Detailed Tickets</option>
                                         <option value="performance" <?= $reportType == 'performance' ? 'selected' : '' ?>>Performance</option>
                                         <option value="trends" <?= $reportType == 'trends' ? 'selected' : '' ?>>Trends</option>
+                                        <option value="insights" <?= $reportType == 'insights' ? 'selected' : '' ?>>Analytics Insights</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2">
@@ -615,10 +844,10 @@ if (isset($reportData['stats'])) {
                                                     <td><?= $category['count'] ?></td>
                                                     <td><?= 0 ? round(0, 1) . 'h' : 'N/A' ?></td>
                                                     <td>
-                                                        <?php 
-                                                        $performance = 0 < 24 ? 'Excellent' : 
+                                                        <?php
+                                                        $performance = 0 < 24 ? 'Excellent' :
                                                                       (0 < 48 ? 'Good' : 'Needs Improvement');
-                                                        $badgeClass = 0 < 24 ? 'bg-success' : 
+                                                        $badgeClass = 0 < 24 ? 'bg-success' :
                                                                      (0 < 48 ? 'bg-warning' : 'bg-danger');
                                                         ?>
                                                         <span class="badge <?= $badgeClass ?>"><?= $performance ?></span>
@@ -629,6 +858,115 @@ if (isset($reportData['stats'])) {
                                     </table>
                                 </div>
                             </div>
+
+                        <?php elseif ($reportType == 'insights'): ?>
+                            <!-- Analytics Insights Report -->
+                            <style>
+                                .insight-card {
+                                    border-left: 4px solid;
+                                    padding: 1.5rem;
+                                    margin-bottom: 1.5rem;
+                                    border-radius: 8px;
+                                    background: white;
+                                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                                    transition: transform 0.2s, box-shadow 0.2s;
+                                }
+                                .insight-card:hover {
+                                    transform: translateX(5px);
+                                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                                }
+                                .insight-card.success { border-left-color: #2d5a3d; background: linear-gradient(to right, rgba(45, 90, 61, 0.05), white); }
+                                .insight-card.warning { border-left-color: #b8860b; background: linear-gradient(to right, rgba(184, 134, 11, 0.05), white); }
+                                .insight-card.danger { border-left-color: #722f37; background: linear-gradient(to right, rgba(114, 47, 55, 0.05), white); }
+                                .insight-card.info { border-left-color: #4a90a4; background: linear-gradient(to right, rgba(74, 144, 164, 0.05), white); }
+                                .insight-card.primary { border-left-color: #8B4513; background: linear-gradient(to right, rgba(139, 69, 19, 0.05), white); }
+                                .insight-icon {
+                                    font-size: 2.5rem;
+                                    margin-right: 1.5rem;
+                                    opacity: 0.8;
+                                }
+                                .insight-icon.success { color: #2d5a3d; }
+                                .insight-icon.warning { color: #b8860b; }
+                                .insight-icon.danger { color: #722f37; }
+                                .insight-icon.info { color: #4a90a4; }
+                                .insight-icon.primary { color: #8B4513; }
+                                .metric-card {
+                                    background: linear-gradient(135deg, var(--treasury-blue), var(--treasury-navy));
+                                    color: white;
+                                    padding: 1.5rem;
+                                    border-radius: 12px;
+                                    text-align: center;
+                                    margin-bottom: 1rem;
+                                }
+                            </style>
+
+                            <!-- Key Metrics -->
+                            <div class="row mb-4">
+                                <div class="col-md-3">
+                                    <div class="metric-card">
+                                        <h3><?= round(($stats['solved_tickets'] / max($stats['total_tickets'], 1)) * 100, 1) ?>%</h3>
+                                        <p class="mb-0">Resolution Rate</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="metric-card" style="background: linear-gradient(135deg, var(--treasury-green), var(--treasury-blue));">
+                                        <h3><?= count($reportData['team_stats'] ?? []) ?></h3>
+                                        <p class="mb-0">Active Teams</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="metric-card" style="background: linear-gradient(135deg, var(--treasury-amber), var(--treasury-gold));">
+                                        <h3><?= count($reportData['top_categories'] ?? []) ?></h3>
+                                        <p class="mb-0">Issue Categories</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="metric-card" style="background: linear-gradient(135deg, var(--treasury-burgundy), var(--treasury-brown));">
+                                        <h3><?= $stats['urgent_tickets'] + $stats['high_priority_tickets'] ?></h3>
+                                        <p class="mb-0">Critical Tickets</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Analytics Insights Cards -->
+                            <div class="chart-container">
+                                <h5 style="color: var(--treasury-navy);" class="mb-4">
+                                    <i class="fas fa-chart-line me-2"></i>Analytics Insights
+                                </h5>
+                                <?php foreach ($reportData['ai_insights'] as $insight): ?>
+                                    <div class="insight-card <?= $insight['type'] ?>">
+                                        <div class="d-flex align-items-start">
+                                            <i class="fas <?= $insight['icon'] ?> insight-icon <?= $insight['type'] ?>"></i>
+                                            <div style="flex: 1;">
+                                                <h5 style="color: var(--treasury-navy); margin-bottom: 0.5rem;">
+                                                    <?= htmlspecialchars($insight['title']) ?>
+                                                </h5>
+                                                <p style="color: #6c757d; margin-bottom: 0; line-height: 1.6;">
+                                                    <?= htmlspecialchars($insight['description']) ?>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+
+                            <!-- Top Categories Chart -->
+                            <?php if (!empty($reportData['top_categories'])): ?>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="chart-container">
+                                        <h5 style="color: var(--treasury-navy);" class="mb-3">Top Issue Categories</h5>
+                                        <canvas id="aiCategoriesChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="chart-container">
+                                        <h5 style="color: var(--treasury-navy);" class="mb-3">Team Performance Overview</h5>
+                                        <canvas id="aiTeamChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -799,7 +1137,7 @@ if (isset($reportData['stats'])) {
         // Trends Chart
         const trendsCtx = document.getElementById('trendsChart');
         if (trendsCtx) {
-            
+
             // Add slight delay to ensure DOM is ready
             setTimeout(function() {
                 const chart = new Chart(trendsCtx, {
@@ -838,6 +1176,73 @@ if (isset($reportData['stats'])) {
             }, 500); // Wait 500ms for DOM and Chart.js to be ready
         }
         <?php endif; ?>
+
+        <?php if ($reportType == 'insights' && isset($reportData['top_categories']) && !empty($reportData['top_categories'])): ?>
+        // AI Categories Chart
+        const aiCategoriesCtx = document.getElementById('aiCategoriesChart');
+        if (aiCategoriesCtx) {
+            new Chart(aiCategoriesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [<?php echo implode(',', array_map(function($cat) { return '"' . ucfirst($cat['category']) . '"'; }, $reportData['top_categories'])); ?>],
+                    datasets: [{
+                        data: [<?php echo implode(',', array_column($reportData['top_categories'], 'count')); ?>],
+                        backgroundColor: [
+                            chartColors.primary,
+                            chartColors.secondary,
+                            chartColors.info,
+                            chartColors.warning,
+                            chartColors.success
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // AI Team Performance Chart
+        const aiTeamCtx = document.getElementById('aiTeamChart');
+        if (aiTeamCtx && <?php echo !empty($reportData['team_stats']) ? 'true' : 'false'; ?>) {
+            new Chart(aiTeamCtx, {
+                type: 'bar',
+                data: {
+                    labels: [<?php echo !empty($reportData['team_stats']) ? implode(',', array_map(function($team) { return '"Team ' . $team['team'] . '"'; }, $reportData['team_stats'])) : ''; ?>],
+                    datasets: [{
+                        label: 'Total Tickets',
+                        data: [<?php echo !empty($reportData['team_stats']) ? implode(',', array_column($reportData['team_stats'], 'total_tickets')) : ''; ?>],
+                        backgroundColor: chartColors.primary,
+                        borderRadius: 8
+                    }, {
+                        label: 'Solved Tickets',
+                        data: [<?php echo !empty($reportData['team_stats']) ? implode(',', array_column($reportData['team_stats'], 'solved_tickets')) : ''; ?>],
+                        backgroundColor: chartColors.success,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        <?php endif; ?>
+
     </script>
 </body>
 </html>

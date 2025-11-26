@@ -167,7 +167,7 @@ if (!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false) {
     padding: 8px 14px;
     margin: 0 3px;
     background: #fff;
-    color: #6b7280;
+    color: #8B4513;
     font-weight: 500;
     transition: all 0.2s;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -201,13 +201,13 @@ if (!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false) {
     align-items: center;
     margin: 0;
     font-weight: 500;
-    color: #6b7280;
+    color: #8B4513;
   }
   
   .pagination-wrapper .dataTables_info {
     margin: 0 1rem;
     white-space: nowrap;
-    color: #6b7280;
+    color: #8B4513;
     font-weight: 500;
   }
   

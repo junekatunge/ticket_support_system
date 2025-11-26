@@ -14,6 +14,9 @@ require_once __DIR__ . '/src/notification.php';
 
 // Get notification count
 $notificationCount = Notification::getUnreadCount();
+
+// Message system removed - set to 0
+$unreadMessageCount = 0;
 ?>
 
 <style>
@@ -374,6 +377,8 @@ $notificationCount = Notification::getUnreadCount();
                             case 'team.php': $page_name = 'Teams'; break;
                             case 'users.php': $page_name = 'Users'; break;
                             case 'reports.php': $page_name = 'Reports & Analytics'; break;
+                            case 'messages.php': $page_name = 'Messages'; break;
+                            case 'profile.php': $page_name = 'My Profile'; break;
                         }
                         echo $page_name;
                         ?>
@@ -453,7 +458,15 @@ $notificationCount = Notification::getUnreadCount();
                     <?php endif; ?>
                 </ul>
             </div>
-            
+
+            <!-- Messages -->
+            <a href="messages.php" class="navbar-notifications" title="Messages" style="position: relative;">
+                <i class="fas fa-envelope"></i>
+                <?php if ($unreadMessageCount > 0): ?>
+                    <span class="notification-badge"><?= $unreadMessageCount > 99 ? '99+' : $unreadMessageCount ?></span>
+                <?php endif; ?>
+            </a>
+
             <!-- User Profile -->
             <div class="dropdown">
                 <a href="#" class="navbar-user" data-bs-toggle="dropdown" aria-expanded="false">

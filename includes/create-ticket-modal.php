@@ -73,27 +73,71 @@ if (!isset($teams) || empty($teams)) {
                     <input type="text" class="form-control" id="ticketSubject" name="subject" required placeholder="Enter subject" style="padding: 0.65rem; font-size: 0.9rem;">
                   </div>
                 </div>
+                <div class="col-12">
+                  <div id="aiSuggestionBox" style="display: none; background: linear-gradient(135deg, rgba(139, 69, 19, 0.05), rgba(210, 180, 140, 0.1)); border: 2px solid var(--treasury-tan); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <div class="d-flex align-items-center mb-2">
+                      <i class="fas fa-robot text-primary me-2" style="font-size: 1.2rem; color: var(--treasury-brown) !important;"></i>
+                      <h6 class="mb-0 fw-bold" style="color: var(--treasury-brown);">AI Suggestions</h6>
+                      <span class="badge ms-auto" style="background: var(--treasury-brown); font-size: 0.7rem;">
+                        <i class="fas fa-bolt me-1"></i>Auto-detected
+                      </span>
+                    </div>
+                    <div class="row g-2">
+                      <div class="col-6">
+                        <div style="background: white; padding: 0.75rem; border-radius: 6px; border-left: 3px solid var(--treasury-brown);">
+                          <small class="text-muted d-block" style="font-size: 0.7rem;">Suggested Category</small>
+                          <div class="fw-bold" id="aiCategorySuggestion" style="color: var(--treasury-brown);">-</div>
+                          <small class="text-muted" id="aiCategoryReason" style="font-size: 0.7rem;"></small>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div style="background: white; padding: 0.75rem; border-radius: 6px; border-left: 3px solid var(--treasury-burgundy);">
+                          <small class="text-muted d-block" style="font-size: 0.7rem;">Suggested Priority</small>
+                          <div class="fw-bold" id="aiPrioritySuggestion" style="color: var(--treasury-burgundy);">-</div>
+                          <small class="text-muted" id="aiPriorityReason" style="font-size: 0.7rem;"></small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="mt-2 text-center">
+                      <button type="button" id="acceptAISuggestions" class="btn btn-sm" style="background: var(--treasury-brown); color: white; font-size: 0.8rem; padding: 0.4rem 1rem; border-radius: 6px;">
+                        <i class="fas fa-check me-1"></i>Accept Suggestions
+                      </button>
+                      <button type="button" id="dismissAISuggestions" class="btn btn-sm btn-light" style="font-size: 0.8rem; padding: 0.4rem 1rem; border-radius: 6px;">
+                        <i class="fas fa-times me-1"></i>Dismiss
+                      </button>
+                    </div>
+                  </div>
+                </div>
                 <div class="col-6">
                   <div class="form-floating-custom" style="margin-bottom: 1rem;">
-                    <label for="ticketCategory" style="font-size: 0.8rem;">Category</label>
+                    <label for="ticketCategory" style="font-size: 0.8rem;">
+                      Category
+                      <span class="badge" id="aiCategoryBadge" style="display: none; background: var(--treasury-brown); font-size: 0.6rem; margin-left: 0.25rem;">
+                        <i class="fas fa-magic"></i> AI
+                      </span>
+                    </label>
                     <select class="form-select" id="ticketCategory" name="category" required style="padding: 0.65rem; font-size: 0.9rem;">
                       <option value="">--Select--</option>
                       <option value="hardware">💻 Hardware</option>
                       <option value="software">📱 Software</option>
                       <option value="network">🌐 Network</option>
-                      <option value="email">📧 Email</option>
-                      <option value="printer">🖨️ Printer</option>
-                      <option value="account">👤 Account</option>
+                      <option value="access">🔑 Access</option>
+                      <option value="security">🛡️ Security</option>
                       <option value="other">📋 Other</option>
                     </select>
                   </div>
                 </div>
                 <div class="col-6">
                   <div class="form-floating-custom" style="margin-bottom: 1rem;">
-                    <label for="ticketPriority" style="font-size: 0.8rem;">Priority</label>
+                    <label for="ticketPriority" style="font-size: 0.8rem;">
+                      Priority
+                      <span class="badge" id="aiPriorityBadge" style="display: none; background: var(--treasury-burgundy); font-size: 0.6rem; margin-left: 0.25rem;">
+                        <i class="fas fa-magic"></i> AI
+                      </span>
+                    </label>
                     <select class="form-select" id="ticketPriority" name="priority" required style="padding: 0.65rem; font-size: 0.9rem;">
-                      <option value="low" selected>🟢 Low</option>
-                      <option value="medium">🟡 Medium</option>
+                      <option value="low">🟢 Low</option>
+                      <option value="medium" selected>🟡 Medium</option>
                       <option value="high">🟠 High</option>
                       <option value="urgent">🔴 Urgent</option>
                     </select>

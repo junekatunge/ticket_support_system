@@ -67,7 +67,7 @@ if (!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false) {
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   }
   .ticket-table thead {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: linear-gradient(135deg, #8B4513 0%, #D2B48C 100%);
     color: white;
   }
   .ticket-table th {
@@ -114,7 +114,7 @@ if (!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false) {
     animation: pulse 2s infinite;
   }
   .urgency-high {
-    background-color: #f59e0b;
+    background-color: #8B4513;
     color: white;
   }
   .urgency-normal {
@@ -133,7 +133,7 @@ if (!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false) {
   }
   .search-box:focus {
     outline: none;
-    border-color: #f59e0b;
+    border-color: #8B4513;
     box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
   }
   .filter-btn {
@@ -161,21 +161,21 @@ if (!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false) {
     padding: 8px 14px;
     margin: 0 3px;
     background: #fff;
-    color: #6b7280;
+    color: #8B4513;
     font-weight: 500;
     transition: all 0.2s;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
   
   .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: linear-gradient(135deg, #8B4513 0%, #D2B48C 100%);
     color: white !important;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
   }
   
   .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: linear-gradient(135deg, #8B4513 0%, #D2B48C 100%);
     color: white !important;
     box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
   }
@@ -195,13 +195,13 @@ if (!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false) {
     align-items: center;
     margin: 0;
     font-weight: 500;
-    color: #6b7280;
+    color: #8B4513;
   }
   
   .pagination-wrapper .dataTables_info {
     margin: 0 1rem;
     white-space: nowrap;
-    color: #6b7280;
+    color: #8B4513;
     font-weight: 500;
   }
   
@@ -217,7 +217,7 @@ if (!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false) {
     background-color: #10b981;
   }
   .wait-attention {
-    background-color: #f59e0b;
+    background-color: #8B4513;
   }
   .wait-critical {
     background-color: #ef4444;

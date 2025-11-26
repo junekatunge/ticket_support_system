@@ -47,31 +47,33 @@ class Ticket
 
     public function save(): Ticket
     {
-        $sql = "INSERT INTO ticket (title, body, requester, team, team_member, status, priority, rating, building, department, room, category, additional_info, created_at)
-                VALUES (
-                    '$this->title',
-                    '$this->body',
-                    '$this->requester',
-                    '$this->team',
-                    '$this->team_member',
-                    '$this->status',
-                    '$this->priority',
-                    '$this->rating',
-                    '$this->building',
-                    '$this->department',
-                    '$this->room',
-                    '$this->category',
-                    '$this->additional_info',
-                    NOW()
-                )";
+        $stmt = $this->db->prepare("INSERT INTO ticket (title, body, requester, team, team_member, status, priority, rating, building, department, room, category, additional_info, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
 
-        if ($this->db->query($sql) === false) {
-    echo "<pre>SQL Query:\n$sql\n\nError:\n" . $this->db->error . "</pre>";
-    exit;
-}
+        $stmt->bind_param(
+            "ssiisssssssss",
+            $this->title,
+            $this->body,
+            $this->requester,
+            $this->team,
+            $this->team_member,
+            $this->status,
+            $this->priority,
+            $this->rating,
+            $this->building,
+            $this->department,
+            $this->room,
+            $this->category,
+            $this->additional_info
+        );
 
+        if ($stmt->execute() === false) {
+            echo "<pre>Error:\n" . $stmt->error . "</pre>";
+            exit;
+        }
 
         $id = $this->db->insert_id;
+        $stmt->close();
         return self::find($id);
     }
 

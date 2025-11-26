@@ -320,9 +320,9 @@ if(isset($_POST['submit'])){
     }
     
     .alert-success {
-      background: #d4edda;
-      border-color: #c3e6cb;
-      color: #155724;
+      background: rgba(45, 90, 61, 0.1);
+      border: 1px solid rgba(45, 90, 61, 0.2);
+      color: var(--treasury-green);
     }
     
     .forgot-password {
@@ -494,12 +494,66 @@ if(isset($_POST['submit'])){
               $check_res = $db->query($check_sql);
               
               if($check_res->num_rows > 0) {
-                // Here you would normally send an email with reset instructions
-                // For demo purposes, we'll just show a success message
-                echo '<div class="alert alert-success" role="alert">
-                        <i class="fas fa-check-circle me-2"></i>
-                        <strong>Success!</strong> Password reset instructions have been sent to your email.
-                      </div>';
+                $user = $check_res->fetch_assoc();
+                $user_id = $user['id'];
+                
+                // Get user name for email
+                $user_sql = "SELECT name FROM users WHERE id = $user_id";
+                $user_res = $db->query($user_sql);
+                $user_name = ($user_res && $user_res->num_rows > 0) ? $user_res->fetch_assoc()['name'] : 'User';
+                
+                // Generate reset token
+                $reset_token = bin2hex(random_bytes(32));
+                $expires_at = date('Y-m-d H:i:s', strtotime('+1 hour'));
+                
+                // Try to create password_resets table if it doesn't exist
+                $create_table_sql = "CREATE TABLE IF NOT EXISTS password_resets (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    email VARCHAR(255) NOT NULL,
+                    token VARCHAR(255) NOT NULL UNIQUE,
+                    expires_at TIMESTAMP NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )";
+                $db->query($create_table_sql);
+                
+                // Delete any existing tokens for this user
+                $delete_sql = "DELETE FROM password_resets WHERE user_id = $user_id";
+                $db->query($delete_sql);
+                
+                // Insert new reset token
+                $insert_sql = "INSERT INTO password_resets (user_id, email, token, expires_at) VALUES ($user_id, '$reset_email', '$reset_token', '$expires_at')";
+                
+                if($db->query($insert_sql)) {
+                  // Try to send email
+                  $emailSender = new EmailSender();
+                  $email_result = $emailSender->sendPasswordReset($reset_email, $user_name, $reset_token);
+                  
+                  if($email_result['success']) {
+                    echo '<div class="alert alert-success" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>Success!</strong> Password reset instructions have been sent to your email address.
+                            <br><small class="text-muted">Please check your inbox and spam folder.</small>
+                          </div>';
+                  } else {
+                    // Fallback to showing link if email fails
+                    $reset_url = 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/reset-password.php?token=' . $reset_token;
+                    
+                    echo '<div class="alert alert-success" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>Reset token generated!</strong> Email delivery failed, but you can use this link:<br><br>
+                            <a href="' . $reset_url . '" class="btn btn-sm btn-outline-success mt-2" target="_blank">
+                              <i class="fas fa-external-link-alt me-1"></i>Open Reset Link
+                            </a><br>
+                            <small class="text-muted mt-2 d-block">Email error: ' . htmlspecialchars($email_result['message']) . '</small>
+                          </div>';
+                  }
+                } else {
+                  echo '<div class="alert" role="alert">
+                          <i class="fas fa-exclamation-triangle me-2"></i>
+                          <strong>Error:</strong> Failed to generate reset token. Please try again.
+                        </div>';
+                }
               } else {
                 echo '<div class="alert" role="alert">
                         <i class="fas fa-exclamation-triangle me-2"></i>

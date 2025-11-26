@@ -17,9 +17,8 @@ if ($confirmed) {
     // Log the signout action
     $logMessage = "User {$user->name} (ID: {$user->id}) signed out at " . date('Y-m-d H:i:s');
     error_log($logMessage);
-    
+
     // Clear session data
-    session_start();
     $_SESSION = array(); // Clear all session data
     
     // Delete the session cookie if it exists
@@ -141,10 +140,10 @@ if ($confirmed) {
 <body>
     <div class="d-flex">
         <?php include 'sidebar.php'; ?>
-        
+
         <div style="flex: 1; padding: 2rem; width: 100%;">
             <div class="container-fluid" style="max-width: none; padding: 0;">
-    <div class="row justify-content-center align-items-center" style="min-height: 60vh;">
+    <div class="row justify-content-center align-items-center" style="min-height: 100vh;">
         <div class="col-md-6 col-lg-4">
             <div class="card shadow-lg border-0">
                 <div class="card-body p-5 text-center">
@@ -313,43 +312,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form');
     const signoutBtn = document.querySelector('button[name="confirmed"]');
     const cancelBtn = document.querySelector('a[href="dashboard.php"]');
-    
-    // Add confirmation dialog for extra security
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const confirmModal = confirm('⚠️ FINAL CONFIRMATION\n\nThis will immediately:\n• End your current session\n• Clear all stored data\n• Redirect you to the login page\n\nAre you absolutely sure you want to sign out?');
-        
-        if (confirmModal) {
-            signoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Signing out...';
-            signoutBtn.disabled = true;
-            cancelBtn.style.display = 'none';
-            
-            // Add a small delay to show the loading state
-            setTimeout(() => {
-                form.submit();
-            }, 1000);
-        }
-    });
-    
+
     // Auto-focus on the cancel button initially (safer default)
     setTimeout(function() {
         cancelBtn.focus();
     }, 500);
-    
+
     // Add keyboard shortcuts
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             window.location.href = 'dashboard.php';
-        } else if (e.key === 'Enter' && e.shiftKey) {
-            signoutBtn.click();
         }
     });
-    
+
     // Add visual feedback for keyboard shortcuts
     const shortcutInfo = document.createElement('div');
     shortcutInfo.className = 'text-muted text-center mt-2';
-    shortcutInfo.innerHTML = '<small><kbd>Esc</kbd> to cancel • <kbd>Shift+Enter</kbd> to confirm</small>';
+    shortcutInfo.innerHTML = '<small><kbd>Esc</kbd> to cancel</small>';
     form.appendChild(shortcutInfo);
 });
 </script>

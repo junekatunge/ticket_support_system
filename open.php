@@ -57,7 +57,7 @@ $todayTickets = count(array_filter($allTicket, function($t) {
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   }
   .ticket-table thead {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    background: linear-gradient(135deg, #8B4513 0%, #D2B48C 100%);
     color: white;
   }
   .ticket-table th {
@@ -105,7 +105,7 @@ $todayTickets = count(array_filter($allTicket, function($t) {
   }
   .search-box:focus {
     outline: none;
-    border-color: #22c55e;
+    border-color: #8B4513;
     box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
   }
   .filter-btn {
@@ -133,21 +133,21 @@ $todayTickets = count(array_filter($allTicket, function($t) {
     padding: 8px 14px;
     margin: 0 3px;
     background: #fff;
-    color: #6b7280;
+    color: #8B4513;
     font-weight: 500;
     transition: all 0.2s;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
   
   .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    background: linear-gradient(135deg, #8B4513 0%, #D2B48C 100%);
     color: white !important;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(34, 197, 94, 0.3);
   }
   
   .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    background: linear-gradient(135deg, #8B4513 0%, #D2B48C 100%);
     color: white !important;
     box-shadow: 0 4px 8px rgba(34, 197, 94, 0.3);
   }
@@ -167,13 +167,13 @@ $todayTickets = count(array_filter($allTicket, function($t) {
     align-items: center;
     margin: 0;
     font-weight: 500;
-    color: #6b7280;
+    color: #8B4513;
   }
   
   .pagination-wrapper .dataTables_info {
     margin: 0 1rem;
     white-space: nowrap;
-    color: #6b7280;
+    color: #8B4513;
     font-weight: 500;
   }
   
@@ -421,8 +421,10 @@ $todayTickets = count(array_filter($allTicket, function($t) {
                       if ($interval->days == 0) {
                         if ($interval->h == 0) {
                           $timeAgo = $interval->i . ' min ago';
+                        } else if ($interval->h >= 24) {
+                          $timeAgo = '1 day ago';
                         } else {
-                          $timeAgo = $interval->h . ' hours ago';
+                          $timeAgo = $interval->h . 'h ago';
                         }
                       } else {
                         $timeAgo = $interval->days . ' days ago';

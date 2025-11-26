@@ -76,7 +76,7 @@ $productivityScore = min(100, ($solvedTickets * 10) + (($totalMyTickets > 0) ? (
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   }
   .ticket-table thead {
-    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    background: linear-gradient(135deg, #8B4513 0%, #D2B48C 100%);
     color: white;
   }
   .ticket-table th {
@@ -132,8 +132,8 @@ $productivityScore = min(100, ($solvedTickets * 10) + (($totalMyTickets > 0) ? (
   }
   .search-box:focus {
     outline: none;
-    border-color: #06b6d4;
-    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+    border-color: #D2B48C;
+    box-shadow: 0 0 0 3px rgba(210, 180, 140, 0.1);
   }
   .filter-btn {
     border-radius: 6px;
@@ -167,16 +167,16 @@ $productivityScore = min(100, ($solvedTickets * 10) + (($totalMyTickets > 0) ? (
   }
   
   .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    background: linear-gradient(135deg, #8B4513 0%, #D2B48C 100%);
     color: white !important;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(6, 182, 212, 0.3);
+    box-shadow: 0 4px 8px rgba(139, 69, 19, 0.3);
   }
-  
+
   .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    background: linear-gradient(135deg, #8B4513 0%, #D2B48C 100%);
     color: white !important;
-    box-shadow: 0 4px 8px rgba(6, 182, 212, 0.3);
+    box-shadow: 0 4px 8px rgba(139, 69, 19, 0.3);
   }
   
   .pagination-wrapper {
@@ -211,20 +211,20 @@ $productivityScore = min(100, ($solvedTickets * 10) + (($totalMyTickets > 0) ? (
     height: 8px;
     border-radius: 50%;
     margin-right: 6px;
-    background-color: #06b6d4;
+    background-color: #8B4513;
   }
-  
+
   /* Productivity score */
   .productivity-circle {
     position: relative;
     width: 80px;
     height: 80px;
   }
-  
+
   .productivity-circle svg {
     transform: rotate(-90deg);
   }
-  
+
   .productivity-circle .score-text {
     position: absolute;
     top: 50%;
@@ -232,22 +232,22 @@ $productivityScore = min(100, ($solvedTickets * 10) + (($totalMyTickets > 0) ? (
     transform: translate(-50%, -50%);
     font-weight: bold;
     font-size: 0.875rem;
-    color: #06b6d4;
+    color: #8B4513;
   }
-  
+
   /* Quick actions */
   .quick-actions {
-    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    background: linear-gradient(135deg, #8B4513 0%, #D2B48C 100%);
     color: white;
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 1rem;
-    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+    box-shadow: 0 4px 12px rgba(139, 69, 19, 0.2);
   }
-  
+
   /* Performance chart */
   .performance-card {
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    background: linear-gradient(135deg, rgba(139, 69, 19, 0.05) 0%, rgba(210, 180, 140, 0.05) 100%);
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 1rem;
@@ -422,7 +422,7 @@ $productivityScore = min(100, ($solvedTickets * 10) + (($totalMyTickets > 0) ? (
               <div class="productivity-circle">
                 <svg width="60" height="60">
                   <circle cx="30" cy="30" r="25" fill="none" stroke="#e5e7eb" stroke-width="4"/>
-                  <circle cx="30" cy="30" r="25" fill="none" stroke="#06b6d4" stroke-width="4"
+                  <circle cx="30" cy="30" r="25" fill="none" stroke="#8B4513" stroke-width="4"
                           stroke-dasharray="<?php echo ($productivityScore/100)*157; ?>, 157"/>
                 </svg>
                 <div class="score-text"><?php echo round($productivityScore); ?>%</div>
@@ -597,14 +597,16 @@ $productivityScore = min(100, ($solvedTickets * 10) + (($totalMyTickets > 0) ? (
                   </span>
                 </td>
                 <td>
-                  <?php 
+                  <?php
                     $lastUpdate = new DateTime($ticket->updated_at ?? $ticket->created_at);
                     $now = new DateTime();
                     $interval = $lastUpdate->diff($now);
-                    
+
                     if($interval->days == 0) {
                       if($interval->h == 0) {
                         $timeAgo = $interval->i . ' min ago';
+                      } else if($interval->h >= 24) {
+                        $timeAgo = '1 day ago';
                       } else {
                         $timeAgo = $interval->h . 'h ago';
                       }
