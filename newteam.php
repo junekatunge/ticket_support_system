@@ -30,18 +30,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_message = 'Team name cannot exceed 100 characters.';
     } else {
         // Check if team name already exists
-        $checkStmt = $db->prepare("SELECT id FROM teams WHERE name = ?");
+        $checkStmt = $db->prepare("SELECT id FROM team WHERE name = ?");
         $checkStmt->bind_param("s", $name);
         $checkStmt->execute();
         $result = $checkStmt->get_result();
-        
+
         if ($result->num_rows > 0) {
             $error_message = 'A team with this name already exists.';
         } else {
             try {
                 // Create team using direct database insertion
-                $stmt = $db->prepare("INSERT INTO teams (name, description, priority, status, created_at) VALUES (?, ?, ?, ?, NOW())");
-                $stmt->bind_param("ssss", $name, $description, $priority, $status);
+                $stmt = $db->prepare("INSERT INTO team (name, created_at) VALUES (?, NOW())");
+                $stmt->bind_param("s", $name);
                 
                 if ($stmt->execute()) {
                     $success_message = "Team '{$name}' created successfully!";

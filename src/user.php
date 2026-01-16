@@ -6,12 +6,11 @@ class User {
     public ?int $id = null;
     public string $name = '';
     public string $email = '';
-    public ?string $room = null;
+    public ?string $phone = null;
     public string $password = '';
     public string $role = '';
     public ?string $avatar = null;
-    public ?string $last_password = null; 
-    // public ?string $phone = null;
+    public ?string $last_password = null;
     public ?string $created_at = null;
     public ?string $updated_at = null;
 
@@ -23,7 +22,7 @@ class User {
         if ($data) {
             $this->name = $data['name'] ?? '';
             $this->email = $data['email'] ?? '';
-            $this->room = $data['room'] ?? '';
+            $this->phone = $data['phone'] ?? '';
             $this->password = $data['password'] ?? '';
             $this->role = $data['role'] ?? '';
             $this->last_password = $data['password'] ?? '';
@@ -32,15 +31,15 @@ class User {
 
     public function save(): User {
         $stmt = $this->db->prepare(
-            "INSERT INTO users (name, email, room, password, role, last_password) 
+            "INSERT INTO users (name, email, phone, password, role, last_password)
              VALUES (?, ?, ?, ?, ?, ?)"
         );
-        $stmt->bind_param("ssssss", 
-            $this->name, 
-            $this->email, 
-            $this->room, 
-            $this->password, 
-            $this->role, 
+        $stmt->bind_param("ssssss",
+            $this->name,
+            $this->email,
+            $this->phone,
+            $this->password,
+            $this->role,
             $this->last_password
         );
 

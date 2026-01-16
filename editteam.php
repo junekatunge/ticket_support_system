@@ -1,4 +1,8 @@
 <?php
+require_once './src/Database.php';
+require_once './src/team.php';
+require_once './src/user.php';
+
 session_start();
 if (!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false) {
     header('Location: ./index.php');
@@ -6,57 +10,72 @@ if (!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false) {
 }
 $user = $_SESSION['user'];
 
-if (!isset($_GET['team-id']) || strlen($_GET['team-id']) < 1 || !ctype_digit($_GET['team-id'])) {
-    echo '<script>history.back()</script>';
+// Check if team ID is provided
+if (!isset($_GET['id']) || !ctype_digit($_GET['id'])) {
+    header('Location: team.php');
     exit();
 }
-
-require_once './src/Database.php';
-require_once './src/user.php';
-require_once './src/team.php';
-require_once './src/team-member.php';
 
 $db = Database::getInstance();
-$teamId = intval($_GET['team-id']);
-$currentTeam = Team::find($teamId);
+$teamId = intval($_GET['id']);
+$success_message = '';
+$error_message = '';
 
+// Fetch team details
+$currentTeam = Team::find($teamId);
 if (!$currentTeam) {
-    echo '<script>alert("Team not found"); window.location = "team.php";</script>';
+    header('Location: team.php');
     exit();
 }
 
-$users = new User();
-$allusers = $users::findAll();
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'])) {
+    $name = trim($_POST['name'] ?? '');
+    $description = trim($_POST['description'] ?? '');
 
-$err = '';
-$msg = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
-    $userId = $_POST['id'];
-
-    if ($userId == 'none' || empty($userId)) {
-        $err = "Please select a user";
+    // Validation
+    if (empty($name)) {
+        $error_message = 'Team name is required.';
+    } elseif (strlen($name) < 2) {
+        $error_message = 'Team name must be at least 2 characters long.';
+    } elseif (strlen($name) > 100) {
+        $error_message = 'Team name cannot exceed 100 characters.';
     } else {
-        try {
-            $team_mem = new TeamMember([
-                'user' => $userId,
-                'team' => $teamId
-            ]);
+        // Check if team name already exists (excluding current team)
+        $checkStmt = $db->prepare("SELECT id FROM team WHERE name = ? AND id != ?");
+        $checkStmt->bind_param("si", $name, $teamId);
+        $checkStmt->execute();
+        $result = $checkStmt->get_result();
 
-            $saveteam = $team_mem->save();
-            $msg = "Member added successfully to team!";
-        } catch (Exception $e) {
-            $err = "Failed to add member: " . $e->getMessage();
+        if ($result->num_rows > 0) {
+            $error_message = 'A team with this name already exists.';
+        } else {
+            try {
+                // Update team
+                $stmt = $db->prepare("UPDATE team SET name = ?, updated_at = NOW() WHERE id = ?");
+                $stmt->bind_param("si", $name, $teamId);
+
+                if ($stmt->execute()) {
+                    $success_message = "Team '{$name}' updated successfully!";
+                    // Refresh team data
+                    $currentTeam = Team::find($teamId);
+                } else {
+                    $error_message = 'Failed to update team. Please try again.';
+                }
+            } catch (Exception $e) {
+                $error_message = 'Error updating team: ' . $e->getMessage();
+            }
         }
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Team Member - Helpdesk</title>
+    <title>Edit Team - Helpdesk</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
@@ -67,9 +86,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
             --treasury-gold: #c9a96e;
             --treasury-brown: #8B4513;
             --treasury-tan: #D2B48C;
+            --treasury-dark: #2c3e50;
+            --treasury-light: #f8f9fc;
         }
         html, body { height: 100%; }
-        body { background: var(--bg-soft); }
+        body { background: var(--treasury-light); }
         .app-shell { display: flex; height: 100vh; }
         .content {
             padding: calc(60px + 1rem) 1.25rem 2rem;
@@ -96,16 +117,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
             background: linear-gradient(135deg, var(--treasury-light) 0%, #ffffff 100%);
             border-bottom: 2px solid var(--treasury-tan);
         }
-        .form-control:focus, .form-select:focus {
+        .form-control:focus {
             border-color: var(--treasury-tan);
             box-shadow: 0 0 0 0.2rem rgba(210, 180, 140, 0.25);
-        }
-        .breadcrumb-item.active {
-            color: var(--treasury-navy);
-        }
-        .breadcrumb-item a {
-            color: var(--treasury-blue);
-            text-decoration: none;
         }
     </style>
 </head>
@@ -124,13 +138,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
                             <ol class="breadcrumb mb-1">
                                 <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
                                 <li class="breadcrumb-item"><a href="team.php">Teams</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Add Member</li>
+                                <li class="breadcrumb-item active" aria-current="page">Edit Team</li>
                             </ol>
                         </nav>
                         <h1 class="h3 mb-1" style="color: var(--treasury-navy);">
-                            <i class="fas fa-user-plus me-2"></i>Add Team Member
+                            <i class="fas fa-edit me-2"></i>Edit Team
                         </h1>
-                        <p class="mb-0 text-muted">Add a new member to <strong><?= htmlspecialchars($currentTeam->name) ?></strong></p>
+                        <p class="mb-0 text-muted">Update team information</p>
                     </div>
                     <div>
                         <a href="team.php" class="btn btn-outline-secondary">
@@ -140,55 +154,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
                 </div>
 
                 <!-- Success/Error Messages -->
-                <?php if (!empty($msg)): ?>
+                <?php if (!empty($success_message)): ?>
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($msg) ?>
+                        <i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($success_message) ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
 
-                <?php if (!empty($err)): ?>
+                <?php if (!empty($error_message)): ?>
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="fas fa-exclamation-triangle me-2"></i><?= htmlspecialchars($err) ?>
+                        <i class="fas fa-exclamation-triangle me-2"></i><?= htmlspecialchars($error_message) ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 <?php endif; ?>
 
-                <!-- Add Member Form -->
+                <!-- Edit Team Form -->
                 <div class="row justify-content-center">
-                    <div class="col-lg-6 col-md-8">
+                    <div class="col-lg-8">
                         <div class="card form-card">
                             <div class="card-header">
                                 <h5 class="card-title mb-0">
-                                    <i class="fas fa-users me-2"></i>Select User
+                                    <i class="fas fa-users me-2"></i>Team Information
                                 </h5>
                             </div>
                             <div class="card-body">
-                                <form method="POST" action="" id="addMemberForm">
+                                <form method="POST" action="" id="editTeamForm">
                                     <div class="mb-4">
-                                        <label for="id" class="form-label fw-bold">
-                                            User <span class="text-danger">*</span>
+                                        <label for="name" class="form-label fw-bold">
+                                            Team Name <span class="text-danger">*</span>
                                         </label>
-                                        <select name="id" id="id" class="form-select form-select-lg" required>
-                                            <option value="none">-- Select User --</option>
-                                            <?php foreach ($allusers as $u): ?>
-                                                <option value="<?= $u->id ?>">
-                                                    <?= htmlspecialchars($u->name) ?> (<?= htmlspecialchars($u->email) ?>) - <?= ucfirst($u->role) ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
+                                        <input type="text" class="form-control form-control-lg"
+                                               id="name" name="name"
+                                               value="<?= htmlspecialchars($currentTeam->name ?? '') ?>"
+                                               placeholder="Enter team name"
+                                               required minlength="2" maxlength="100">
                                         <div class="form-text">
                                             <i class="fas fa-info-circle me-1"></i>
-                                            Select a user to add to this team
+                                            Enter a unique name for this team (2-100 characters)
                                         </div>
                                     </div>
 
-                                    <div class="alert alert-info">
-                                        <i class="fas fa-lightbulb me-2"></i>
-                                        <strong>Note:</strong> The selected user will be added to the team and can start receiving assigned tickets.
+                                    <div class="mb-4">
+                                        <label for="description" class="form-label fw-bold">
+                                            Description <span class="text-muted">(Optional)</span>
+                                        </label>
+                                        <textarea class="form-control" id="description" name="description"
+                                                  rows="3" placeholder="Enter team description">
+                                                  </textarea>
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Provide a brief description of the team's role
+                                        </div>
                                     </div>
 
-                                    <hr>
+                                    <hr class="my-4">
 
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div class="form-text">
@@ -197,37 +216,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
                                         </div>
                                         <div>
                                             <a href="team.php" class="btn btn-light me-2">Cancel</a>
-                                            <button type="submit" name="submit" class="btn btn-primary" id="submitBtn">
-                                                <i class="fas fa-user-plus me-2"></i>Add Member
+                                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                                <i class="fas fa-save me-2"></i>Update Team
                                             </button>
                                         </div>
                                     </div>
                                 </form>
-                            </div>
-                        </div>
-
-                        <!-- Current Team Members -->
-                        <div class="card form-card mt-3">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-users me-2"></i>Current Members
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <?php
-                                $memberCount = Team::getMemberCount($teamId);
-                                if ($memberCount > 0):
-                                ?>
-                                    <p class="mb-0">
-                                        <i class="fas fa-info-circle text-primary me-2"></i>
-                                        This team currently has <strong><?= $memberCount ?></strong> member<?= $memberCount > 1 ? 's' : '' ?>.
-                                    </p>
-                                <?php else: ?>
-                                    <p class="mb-0 text-muted">
-                                        <i class="fas fa-info-circle me-2"></i>
-                                        This team has no members yet. Be the first to add one!
-                                    </p>
-                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -240,12 +234,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Show success popup if member was added
-            <?php if (!empty($msg)): ?>
+            // Show success popup if team was updated
+            <?php if (!empty($success_message)): ?>
                 Swal.fire({
                     icon: 'success',
-                    title: 'Member Added!',
-                    text: '<?= addslashes($msg) ?>',
+                    title: 'Team Updated!',
+                    text: '<?= addslashes($success_message) ?>',
                     confirmButtonText: 'OK',
                     confirmButtonColor: '#8B4513',
                     timer: 3000,
@@ -254,37 +248,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
             <?php endif; ?>
 
             // Show error popup if there was an error
-            <?php if (!empty($err)): ?>
+            <?php if (!empty($error_message)): ?>
                 Swal.fire({
                     icon: 'error',
                     title: 'Error!',
-                    text: '<?= addslashes($err) ?>',
+                    text: '<?= addslashes($error_message) ?>',
                     confirmButtonText: 'OK',
                     confirmButtonColor: '#8B4513'
                 });
             <?php endif; ?>
 
-            const form = document.getElementById('addMemberForm');
+            const form = document.getElementById('editTeamForm');
             const submitBtn = document.getElementById('submitBtn');
-            const userSelect = document.getElementById('id');
+            const nameInput = document.getElementById('name');
 
             form.addEventListener('submit', function(e) {
-                if (userSelect.value === 'none' || !userSelect.value) {
+                if (nameInput.value.trim().length < 2) {
                     e.preventDefault();
-                    alert('Please select a user to add to the team.');
-                    userSelect.focus();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Invalid Input',
+                        text: 'Team name must be at least 2 characters long.',
+                        confirmButtonColor: '#8B4513'
+                    });
+                    nameInput.focus();
                     return;
                 }
 
                 // Show loading state
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding Member...';
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating Team...';
                 submitBtn.disabled = true;
             });
 
             // Real-time validation
-            userSelect.addEventListener('change', function() {
-                if (this.value === 'none' || !this.value) {
+            nameInput.addEventListener('input', function() {
+                if (this.value.trim().length < 2) {
                     this.classList.add('is-invalid');
+                    this.classList.remove('is-valid');
                 } else {
                     this.classList.remove('is-invalid');
                     this.classList.add('is-valid');

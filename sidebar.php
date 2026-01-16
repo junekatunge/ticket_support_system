@@ -196,6 +196,9 @@ if (isset($user)) {
     <a class="side-link <?= ($current_page == 'mytickets.php') ? 'active' : '' ?>" href="mytickets.php">
       <i class="fas fa-user-circle"></i><span>My Tickets</span>
     </a>
+    <a class="side-link <?= ($current_page == 'messages.php') ? 'active' : '' ?>" href="messages.php">
+      <i class="fas fa-envelope"></i><span>Messages</span>
+    </a>
     <a class="side-link <?= ($current_page == 'profile.php') ? 'active' : '' ?>" href="profile.php">
       <i class="fas fa-user-edit"></i><span>My Profile</span>
     </a>

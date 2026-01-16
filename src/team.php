@@ -43,7 +43,7 @@ class Team
     public static function getMemberCount($teamId): int
     {
         $db = Database::getInstance();
-        $stmt = $db->prepare("SELECT COUNT(*) as total FROM team_member WHERE team_id = ?");
+        $stmt = $db->prepare("SELECT COUNT(*) as total FROM team_member WHERE team = ?");
         if (!$stmt) return 0;
 
         $stmt->bind_param("i", $teamId);

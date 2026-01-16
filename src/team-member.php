@@ -11,7 +11,7 @@ class TeamMember{
     public function __construct($data = null)
 {
     $this->user = $data['user'] ?? null;
-    $this->team = $data['team_id'] ?? null;
+    $this->team = $data['team'] ?? null;
     $this->db = Database::getInstance();
 }
 
@@ -19,20 +19,20 @@ class TeamMember{
      //this function returns Teammember obj
      public function save(): TeamMember
      {
-        $stmt = $this->db->prepare("INSERT INTO team_member (`user`, `team_id`) VALUES (?, ?)");
+        $stmt = $this->db->prepare("INSERT INTO team_member (`user`, `team`) VALUES (?, ?)");
 
          if (!$stmt) {
              throw new Exception("Prepare failed: " . $this->db->error);
          }
-     
+
          $stmt->bind_param("ii", $this->user, $this->team);
          if (!$stmt->execute()) {
              throw new Exception("Execute failed: " . $stmt->error);
          }
-     
+
          $id = $this->db->insert_id;
          $stmt->close();
-     
+
          return self::find($id);
      }
      
@@ -49,11 +49,11 @@ class TeamMember{
 
     public static function findByTeam($id) : array
     {
-        $sql = "SELECT * FROM team_member WHERE team_id = '$id' ORDER BY id DESC";
+        $sql = "SELECT * FROM team_member WHERE team = '$id' ORDER BY id DESC";
         $members = [];
         $self = new static;
         $res = $self->db->query($sql);
-        
+
         if($res->num_rows < 1) return [];
 
         while($row = $res->fetch_object()){

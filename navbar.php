@@ -11,12 +11,13 @@ if (!isset($user) && isset($_SESSION['user'])) {
 // Include notification system
 require_once __DIR__ . '/src/database.php';
 require_once __DIR__ . '/src/notification.php';
+require_once __DIR__ . '/src/message.php';
 
 // Get notification count
 $notificationCount = Notification::getUnreadCount();
 
-// Message system removed - set to 0
-$unreadMessageCount = 0;
+// Get unread message count
+$unreadMessageCount = Message::getUnreadCount();
 ?>
 
 <style>
