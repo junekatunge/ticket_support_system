@@ -1,5 +1,10 @@
 <?php
-include './header.php';
+session_start();
+if (!isset($_SESSION['logged-in']) || $_SESSION['logged-in'] == false) {
+    header('Location: ./index.php');
+    exit();
+}
+
 if (!isset($_GET['id']) || strlen($_GET['id']) < 1 || !ctype_digit($_GET['id'])) {
     echo '<script> history.back()</script>';
     exit();
@@ -78,29 +83,131 @@ if (isset($_POST['comment'])) {
 }
 
 ?>
-<div id="content-wrapper">
 
-    <div class="container-fluid">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a href="#">Dashboard</a>
-            </li>
-            <li class="breadcrumb-item active">Ticket details</li>
-        </ol>
-        <div class="card mb-3">
-            <div class="card-header">
-                <div class="row mx-auto">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Details - Helpdesk</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --treasury-brown: #8B4513;
+            --treasury-tan: #D2B48C;
+            --treasury-light: #f8f9fc;
+        }
+        body {
+            background: var(--treasury-light);
+        }
+        .app-shell { display: flex; height: 100vh; }
+        .content {
+            padding: calc(60px + 1rem) 1.25rem 2rem;
+            height: 100vh;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .ticket-header {
+            background: linear-gradient(135deg, var(--treasury-brown) 0%, var(--treasury-tan) 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(139, 69, 19, 0.15);
+        }
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+        .card-header {
+            background: linear-gradient(135deg, rgba(139, 69, 19, 0.05) 0%, rgba(210, 180, 140, 0.05) 100%);
+            border-bottom: 2px solid rgba(139, 69, 19, 0.1);
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+        }
+        .comment-item {
+            border-left: 3px solid var(--treasury-tan);
+            background: #fff;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .comment-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateX(5px);
+        }
+        .event-item {
+            border-left: 3px solid var(--treasury-brown);
+            background: #fff;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+        }
+        .btn-treasury {
+            background: linear-gradient(135deg, var(--treasury-brown) 0%, var(--treasury-tan) 100%);
+            color: white;
+            border: none;
+        }
+        .btn-treasury:hover {
+            opacity: 0.9;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<?php include 'navbar.php'; ?>
+
+<div class="app-shell">
+    <?php include 'sidebar.php'; ?>
+
+    <section class="content content-with-navbar">
+        <div class="container-fluid">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">
+                        <i class="fas fa-ticket-alt me-2" style="color: var(--treasury-brown);"></i>Ticket Details
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Ticket #<?php echo $ticket->id; ?></li>
+                        </ol>
+                    </nav>
+                </div>
+                <div>
+                    <?php include './includes/create-ticket-button.php'; ?>
+                </div>
+            </div>
+
+            <!-- Ticket Header Card -->
+            <div class="ticket-header">
+                <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <?php echo $ticket->displayStatusBadge()?>
-                        <small class="text-info ml-2"><?php echo $ticket->title?> <span class="text-muted">
-                                <?php $date = new DateTime($ticket->created_at ?? '' );?>
-                                <?php echo $date->format('d-m-Y H:i:s')?>
-                            </span></small>
+                        <h4 class="mt-2 mb-1"><?php echo htmlspecialchars($ticket->title)?></h4>
+                        <small class="opacity-75">
+                            <i class="fas fa-clock me-1"></i>
+                            <?php $date = new DateTime($ticket->created_at ?? '' );?>
+                            Created: <?php echo $date->format('d M Y, H:i:s')?>
+                        </small>
                     </div>
-                  
+                    <div class="text-end">
+                        <span class="badge bg-light text-dark">Priority: <?php echo ucfirst($ticket->priority ?? 'Medium'); ?></span>
+                    </div>
                 </div>
-
             </div>
+
+            <!-- Assignment Form -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fas fa-user-cog me-2"></i>Ticket Assignment
+                </div>
             <div class="card-body">
                 <form method="post">
                     <div class="col-lg-8 col-md-8 col-sm-12 offset-lg-2 offset-md-2">
@@ -132,126 +239,187 @@ if (isset($_POST['comment'])) {
                             </div>
                         </div>
                         <div class="text-center">
-                            <button class="btn btn-primary" type="submit" name="submit" >Assign</button>
+                            <button class="btn btn-treasury" type="submit" name="submit">
+                                <i class="fas fa-save me-2"></i>Assign Ticket
+                            </button>
                         </div>
                     </div>
-
                 </form>
-
             </div>
         </div>
-        <form method="POST" action="">
-        <div class="form-group row col-lg-8 offset-lg-2 col-md-8 col-sm-12 offset-md-2">
-      
-            <label for="team" class="col-sm-12 col-lg-3 col-md-3 col-form-label">Comment</label>
-            <div class="col-sm-8">
-                <textarea class="form-control" name="body"></textarea>
-            </div>
-            <button type="submit" name="comment" class="btn btn-success" style="height:40px;margin-left:340px;margin-top:10px">comment</button>
-       </form>
-        <div class="form-group row col-lg-8 offset-lg-2 col-md-8 col-sm-12 offset-md-2"style="margin-top:60px">
 
-        <form id="formData" class="grid-form"  enctype="multipart/form-data" method="POST">
-                            <label for="team"   style="margin-left:180px">Change Ticket Status</label>
-                            <div class="col-sm-8">
-                       
-                            <input type="hidden" autofocus name="id" value="<?php echo $ticket->id ?>">
-                                <select class="form-control" id="status" name="status" style="margin-left:170px">
-                                 
-                                    <option >--select--</option>
-                                  
-                                    <option value="open">open</option>
-                                    <option value="pending">pending</option>
-                                    <option value="closed">closed</option>
-                                    <option value="solved">solved</option>
-              
+        <!-- Change Status Card -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="fas fa-exchange-alt me-2"></i>Change Ticket Status
+            </div>
+            <div class="card-body">
+                <form id="formData" method="POST">
+                    <div class="row">
+                        <div class="col-md-6 offset-md-3">
+                            <input type="hidden" name="id" value="<?php echo $ticket->id ?>">
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Select New Status</label>
+                                <select class="form-control" id="status" name="status" required>
+                                    <option value="">--Select Status--</option>
+                                    <option value="open">Open</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="closed">Closed</option>
+                                    <option value="solved">Solved</option>
                                 </select>
                             </div>
-                            <button type="submit" name="submit" class="btn btn-success" style="margin-top:10px;margin-left:185px">change</button>
-                            </form>
-                           
+                            <div class="text-center">
+                                <button type="submit" name="submit" class="btn btn-treasury">
+                                    <i class="fas fa-check-circle me-2"></i>Update Status
+                                </button>
+                            </div>
                         </div>
-                        <div id="msg">
                     </div>
-        </div>
-
-        <div class="col-lg-12 my-3">
-            <div class="list-group">
-                <?php foreach($comments as $c):?>
-                <a href="#" class="list-group-item list-group-item-action">
-                    <h6 class="mb-1"><?php echo TeamMember::getName($c->team_member)?></h6>
-                    <div class="d-flex w-100 justify-content-between">
-                        
-                        <p class="mb-1"><?php echo $c->body?></p>
-                        <?php $d = new DateTime($c->created_at)?>
-                        <small><?php echo $d->format('d-m-Y H:i:s')?></small>
-                    </div>
-                </a>
-                <?php endforeach?>
+                </form>
+                <div id="msg" class="mt-3"></div>
             </div>
         </div>
 
-        <div class="col-lg-12 my-3">
-            <div class="list-group">
-                <?php foreach($events as $e):?>
-                <a href="#" class="list-group-item list-group-item-action">
-                    <h6 class="mb-1"><?php echo TeamMember::getName($e->user)?></h6>
-                    <div class="d-flex w-100 justify-content-between">
-                        
-                        <p class="mb-1"><?php echo $e->body?></p>
-                        <?php $d = new DateTime($e->created_at)?>
-                        <small><?php echo $d->format('d-m-Y H:i:s')?></small>
-                    </div>
-                </a>
-                <?php endforeach?>
+        <!-- Add Comment Card -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="fas fa-comment-dots me-2"></i>Add Comment
             </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-8 offset-md-2">
+                            <div class="mb-3">
+                                <label for="body" class="form-label">Your Comment</label>
+                                <textarea class="form-control" name="body" id="body" rows="4" required placeholder="Enter your comment here..."></textarea>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" name="comment" class="btn btn-treasury">
+                                    <i class="fas fa-paper-plane me-2"></i>Post Comment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="fas fa-comments me-2"></i>Comments (<?php echo count($comments); ?>)
+            </div>
+            <div class="card-body">
+                <?php if(empty($comments)): ?>
+                    <p class="text-muted text-center py-4">No comments yet. Be the first to comment!</p>
+                <?php else: ?>
+                    <?php foreach($comments as $c):?>
+                    <div class="comment-item">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">
+                                <i class="fas fa-user-circle me-2" style="color: var(--treasury-brown);"></i>
+                                <?php echo htmlspecialchars(TeamMember::getName($c->team_member))?>
+                            </h6>
+                            <?php $d = new DateTime($c->created_at)?>
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                <?php echo $d->format('d M Y, H:i:s')?>
+                            </small>
+                        </div>
+                        <p class="mb-0"><?php echo nl2br(htmlspecialchars($c->body))?></p>
+                    </div>
+                    <?php endforeach?>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Events Section -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="fas fa-history me-2"></i>Activity Timeline (<?php echo count($events); ?>)
+            </div>
+            <div class="card-body">
+                <?php if(empty($events)): ?>
+                    <p class="text-muted text-center py-4">No activity recorded yet.</p>
+                <?php else: ?>
+                    <?php foreach($events as $e):?>
+                    <div class="event-item">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">
+                                <i class="fas fa-user-cog me-2" style="color: var(--treasury-brown);"></i>
+                                <?php echo htmlspecialchars(TeamMember::getName($e->user))?>
+                            </h6>
+                            <?php $d = new DateTime($e->created_at)?>
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                <?php echo $d->format('d M Y, H:i:s')?>
+                            </small>
+                        </div>
+                        <p class="mb-0"><?php echo htmlspecialchars($e->body)?></p>
+                    </div>
+                    <?php endforeach?>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-muted py-3">
+            <small>© <?php echo date('Y'); ?> ICT Helpdesk. All rights reserved.</small>
         </div>
     </div>
-    <footer class="sticky-footer">
-        <div class="container my-auto">
-            <div class="copyright text-center my-auto">
-            <span>Copyright © The National Treasury</span>
-            </div>
-        </div>
-    </footer>
-
+    </section>
 </div>
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+<script src="js/sb-admin.min.js"></script>
 
-<?php include './footer.php'?>
 <script>
-
-jQuery('#formData').submit(function (e) {
-    e.preventDefault();
-    var formData = new FormData($(this)[0]);
-    jQuery('#msg').html(
-        '<div class="flakes-message success" style="text-align:center"><strong>Processing...</strong></div>'
+jQuery(document).ready(function($) {
+    $('#formData').submit(function (e) {
+        e.preventDefault();
+        var formData = new FormData($(this)[0]);
+        $('#msg').html(
+            '<div class="alert alert-info text-center"><i class="fas fa-spinner fa-spin me-2"></i><strong>Processing...</strong></div>'
         );
 
-    jQuery.ajax({
-        url: './src/update-ticket.php',
-        type: 'post',
-        dataType: 'text',
-        data: formData,
-        contentType: false,
-        processData: false,
-        success: function (res) {
-            let result = JSON.parse(res)
-            if (result.status == 200) {
-
-                jQuery('#msg').html(
-                    '<div class="btn btn-success" style="text-align:center"><strong><span class="fa fa-check"></span> Success!</strong>' +
-                    result.msg + '</div>');
-                jQuery('#formEvents').trigger("reset");
-            } else {
-
-                jQuery('#msg').html(
-                    '<div class="btn btn-danger" style="text-align:center"><strong><span class="fa fa-times"></span> Failed!</strong>' +
-                    result.msg + '</div>');
-
+        $.ajax({
+            url: './src/update-ticket.php',
+            type: 'post',
+            dataType: 'text',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (res) {
+                let result = JSON.parse(res);
+                if (result.status == 200) {
+                    $('#msg').html(
+                        '<div class="alert alert-success text-center"><i class="fas fa-check-circle me-2"></i><strong>Success!</strong> ' +
+                        result.msg + '</div>');
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    $('#msg').html(
+                        '<div class="alert alert-danger text-center"><i class="fas fa-times-circle me-2"></i><strong>Failed!</strong> ' +
+                        result.msg + '</div>');
+                }
+            },
+            error: function() {
+                $('#msg').html(
+                    '<div class="alert alert-danger text-center"><i class="fas fa-exclamation-triangle me-2"></i><strong>Error!</strong> Unable to update ticket status.</div>');
             }
-
-        }
+        });
     });
-});
 
+    // Load create ticket modal functionality
+    $.getScript('./includes/create-ticket-modal.js');
+});
 </script>
+
+<!-- Include Create Ticket Modal -->
+<?php include './includes/create-ticket-modal.php'; ?>
+
+</body>
+</html>

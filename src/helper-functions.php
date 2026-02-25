@@ -10,10 +10,10 @@ function isValidEmail($email)
     return filter_var($email, FILTER_VALIDATE_EMAIL);
 }
 
-function isValidroom($room)
-{
-    return (ctype_digit($room) && strlen($room) == 10);
+function isValidroom($room) {
+    return strlen(trim($room)) > 0; // accept any non-empty string
 }
+
 
 function dnd($variable)
 {

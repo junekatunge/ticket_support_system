@@ -1,4 +1,86 @@
+
 <?php
+  // Handle AJAX requests first, before any HTML output
+  if(isset($_POST['submit_ticket'])) {
+    require_once './src/requester.php';
+    require_once './src/ticket.php';
+    require_once './src/ticket-event.php';
+    require_once './src/helper-functions.php';
+    require_once './src/Database.php';
+    
+    session_start();
+    $user = $_SESSION['user'];
+    $db = Database::getInstance();
+
+    try {
+        $name = $_POST['requester_name'] ?? $_POST['name'];
+        $room = $_POST['room_number'] ?? $_POST['room'];
+        $subject = $_POST['subject'];
+        $comment = $_POST['comment']; 
+        $team = $_POST['team_id'] ?? $_POST['team'];
+        $team_member = $_POST['team_member'] ?? null;
+        $priority = $_POST['priority'];
+        $building = $_POST['building_name'] ?? $_POST['building'];
+        $department = $_POST['department_name'] ?? $_POST['department'];
+        $category = $_POST['category'];
+        $additional_info = $_POST['additional_info'];
+
+        if(strlen($name) < 1) {
+            throw new Exception("Please enter requester name");
+        } else if(!isValidroom($room)){
+            throw new Exception("Please enter a valid room number");
+        } else if(strlen($subject) < 1){
+            throw new Exception("Please enter subject");
+        } else if(strlen($comment) < 1){
+            throw new Exception("Please enter comment");
+        } else if($team == 'none'){
+            throw new Exception("Please select team");
+        }
+
+        $requester = new Requester(['name' => $name]);
+        $savedRequester = $requester->save();
+
+        $ticket = new Ticket([
+            'title' => $subject,
+            'body' => $comment,
+            'requester' => $savedRequester->id,
+            'team' => $team,
+            'team_member' => $team_member,
+            'priority' => $priority,
+            'building' => $building,
+            'department' => $department,
+            'room' => $room,
+            'category' => $category,
+            'additional_info' => $additional_info
+        ]);
+
+        $savedTicket = $ticket->save();
+
+        $event = new Event([
+            'ticket' => $savedTicket->id, 
+            'user' => $user->id, 
+            'body' => 'Ticket created'
+        ]);
+        $event->save();
+
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => true,
+            'message' => 'Ticket created successfully!',
+            'ticket_id' => $savedTicket->id
+        ]);
+        exit;
+
+    } catch(Exception $e){
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false,
+            'message' => 'Failed to create ticket: ' . $e->getMessage()
+        ]);
+        exit;
+    }
+  }
+
   include './header.php';
   require_once './src/requester.php';
   require_once './src/ticket.php';
@@ -16,22 +98,22 @@
       $teams[] = $row;
   }
 
+  // Handle regular (non-AJAX) form submissions
   if(isset($_POST['submit'])){
-    
-      $name = $_POST['name'];
-      $email = $_POST['email'];
-      $room = $_POST['room'];
+      $name = $_POST['requester_name'] ?? $_POST['name'];
+      $room = $_POST['room_number'] ?? $_POST['room'];
       $subject = $_POST['subject'];
       $comment = $_POST['comment']; 
-      $team = $_POST['team'];
+      $team = $_POST['team_id'] ?? $_POST['team'];
+      $team_member = $_POST['team_member'] ?? null;
       $priority = $_POST['priority'];
+      $building = $_POST['building_name'] ?? $_POST['building'];
+      $department = $_POST['department_name'] ?? $_POST['department'];
+      $category = $_POST['category'];
+      $additional_info = $_POST['additional_info'];
 
       if(strlen($name) < 1) {
           $err = "Please enter requester name";
-      } else if(strlen($email) < 1) {
-          $err = "Please enter requester email address";
-      } else if(!isValidEmail($email)){
-          $err = "PLease enter a valid email address";
       } else if(!isValidroom($room)){
           $err = "Please enter a valid room number";
       } else if(strlen($subject) < 1){
@@ -42,22 +124,23 @@
           $err = "Please select team";
       } else {
         try{
-            $requester = new Requester([
-                'name' => $name,
-                'email' => $email,
-                'room' => $room
-            ]); //this obj has no id
-            
-            $savedRequester = $requester->save(); //this obj has the id,because of save();cz it returns an obj
+            $requester = new Requester(['name' => $name]);
+            $savedRequester = $requester->save();
       
             $ticket = new Ticket([
                 'title' => $subject,
                 'body' => $comment,
                 'requester' => $savedRequester->id,
                 'team' => $team,
-                'priority' => $priority
-            ]); 
-      
+                'team_member' => $team_member,
+                'priority' => $priority,
+                'building' => $building,
+                'department' => $department,
+                'room' => $room,
+                'category' => $category,
+                'additional_info' => $additional_info
+            ]);
+            
             $savedTicket = $ticket->save();
 
             $event = new Event([
@@ -69,7 +152,7 @@
 
             $msg = "Ticket generated successfully";
         } catch(Exception $e){
-            $err = "Failed to generate ticket";
+            $err = "Failed to generate ticket: " . $e->getMessage();
         }
       }
   }
@@ -97,6 +180,10 @@
                 <div class="alert alert-success text-center my-3" role="alert"> <strong>Success! </strong> <?php echo $msg;?></div>
                 <?php endif?>
 
+                <!-- *** INDIVIDUAL ASSIGNMENT FEATURE LOADED *** -->
+                <div style="background: yellow; color: red; text-align: center; padding: 10px; margin: 10px 0; font-weight: bold; font-size: 18px;">
+                    ⚠️ INDIVIDUAL ASSIGNMENT FEATURE IS ACTIVE - SCROLL DOWN TO SEE TEAM MEMBER DROPDOWN ⚠️
+                </div>
                 <form method="POST" action="<?php echo $_SERVER['PHP_SELF']?>">
                     <div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
                         <label for="name" class="col-sm-12 col-lg-2 col-md-2 col-form-label">Name</label>
@@ -131,12 +218,23 @@
                     <div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
                         <label for="name" class="col-sm-12 col-lg-2 col-md-2 col-form-label">Team</label>
                         <div class="col-sm-8">
-                            <select name="team" class="form-control">
+                            <select name="team" id="team-dropdown" class="form-control" onchange="getTeamMember(event.target.value)">
                                 <option>--select--</option>
                                 <?php foreach($teams as $team):?>
                                 <option value="<?php echo $team->id?>"> <?php echo $team->name?></option>
                                 <?php endforeach?>
                             </select>
+                        </div>
+                    </div>
+                    
+                    <!-- DEBUG: Team Member Assignment Dropdown -->
+                    <div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12" style="border: 2px solid red; padding: 10px; margin: 10px 0;">
+                        <label for="assigned" class="col-sm-12 col-lg-2 col-md-2 col-form-label" style="color: red; font-weight: bold;">Assign to Member</label>
+                        <div class="col-sm-8">
+                            <select name="team_member" id="team-member-dropdown" class="form-control" style="border: 2px solid blue;">
+                                <option value="">--Optional: Select a team member--</option>
+                            </select>
+                            <small class="form-text text-muted" style="color: green;">Leave unassigned to let the team manager assign later</small>
                         </div>
                     </div>
                     
@@ -150,6 +248,47 @@
                             </select>
                         </div>
                     </div>
+                    <div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
+    <label class="col-sm-12 col-lg-2 col-md-2 col-form-label">Building</label>
+    <div class="col-sm-8">
+        <input type="text" name="building" class="form-control" placeholder="Enter building name">
+    </div>
+</div>
+
+<div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
+    <label class="col-sm-12 col-lg-2 col-md-2 col-form-label">Department</label>
+    <div class="col-sm-8">
+        <input type="text" name="department" class="form-control" placeholder="Enter department name">
+    </div>
+</div>
+
+<div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
+    <label class="col-sm-12 col-lg-2 col-md-2 col-form-label">Category</label>
+    <div class="col-sm-8">
+        <select name="category" class="form-control">
+            <option value="">--Select--</option>
+            <option value="hardware">Hardware</option>
+            <option value="software">Software</option>
+            <option value="network">Network</option>
+        </select>
+    </div>
+</div>
+
+<div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
+    <label class="col-sm-12 col-lg-2 col-md-2 col-form-label">Additional Info</label>
+    <div class="col-sm-8">
+        <textarea name="additional_info" class="form-control" placeholder="Optional notes or info"></textarea>
+    </div>
+</div>
+<?php if (isset($savedTicket) && $savedTicket->id): ?>
+<div class="form-group row col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-12">
+    <label class="col-sm-12 col-lg-2 col-md-2 col-form-label">Ticket ID</label>
+    <div class="col-sm-8">
+        <input type="text" class="form-control" value="<?php echo $savedTicket->id; ?>" readonly>
+    </div>
+</div>
+<?php endif; ?>
+
                     <div class="text-center">
                         <button type="submit" name="submit" class="btn btn-lg btn-primary"> Create</button>
                     </div>
